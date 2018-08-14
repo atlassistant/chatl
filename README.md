@@ -5,7 +5,45 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 
 ## DSL specifications
 
-*TODO*
+```
+# chatl is really easy to understand.
+#
+# You can defines:
+#   - Intents
+#   - Entities
+#   - Synonyms
+#   - Comments (only at the top level)
+
+# Inside an intent, you got training data.
+# Training data can refer to one or more entities, they will be used by generators
+# to generate all possible permutations and training samples.
+
+%[my_intent]
+  some training data
+  another training data that uses an @[entity] at @[date]
+
+# Entities contains available samples and could refer to a synonym.
+
+@[entity]
+  some value
+  other value
+  ~[a synonym]
+
+# Synonyms contains only raw values
+
+~[a synonym]
+  possible synonym
+  another one
+
+# Entities and intents can define arbitrary properties that will be made available
+# to generators.
+# For snips, `type` and `extensible` are used for example.
+
+@[date](type=snips/datetime, extensible=true)
+  tomorrow
+  today
+
+```
 
 ## Install
 
