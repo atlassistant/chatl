@@ -9,7 +9,7 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 
 ## Install
 
-```
+```console
 $ npm install chatl --save
 ```
 
@@ -17,7 +17,7 @@ $ npm install chatl --save
 
 ### CLI
 
-```
+```console
 $ chatl <dsl_training_filepath> [options_filepath] -g <generator>
 ```
 
@@ -25,7 +25,7 @@ $ chatl <dsl_training_filepath> [options_filepath] -g <generator>
 
 You can use it with `node` or directly in client libraries with `webpack`.
 
-```
+```javascript
 import chatl from 'chatl';
 
 // Parsing the given dsl
