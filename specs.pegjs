@@ -45,8 +45,8 @@ Samedent "correct indentation" = s:" "* &{ return s.length === level; }
 Indent = &(i:[ ]* &{ cur_step=i.length; level+=cur_step; return true; })
 Dedent = &(i:[ ]* &{ level-=cur_step; return true; })
 
-EntityName "entity name"  = "[" value:[a-zA-Z_/: ]+ "]" { return value.join('') }
-AnyText "any text" = v:(t:((!"\r\n")(!"\n")(!"@[") .) { return t.join(""); })+ { return v.join(""); }
+EntityName "entity name"  = "[" v:(t:((!"]") .) { return t.join(''); })+ "]" { return v.join(''); }
+AnyText "any text" = v:(t:((!"\r\n")(!"\n")(!"@[") .) { return t.join(''); })+ { return v.join(''); }
 
 Sentence "sentence" = text:AnyText+ { return { type: 'text', value: text.join('') } }
 Entity "entity alias" = "@" value:EntityName { return { type: 'entity', value: value } }
