@@ -13,10 +13,13 @@ module.exports = function process(data, options) {
           prev[entity.props.type] = {};
         }
       } else {
+        const variants_data = Object.values(entity.variants).reduce((prev, cur) => prev.concat(cur), []);
+
         prev[cur] = {
-          use_synonyms: (entity.data.filter(o => o.synonyms.length > 0).length > 0),
+          use_synonyms: (entity.data.filter(o => o.synonyms.length > 0).length > 0 
+            || variants_data.filter(o => o.synonyms.length > 0).length > 0),
           automatically_extensible: JSON.parse(entity.props.extensible || 'true'),
-          data: entity.data,
+          data: entity.data.concat(variants_data),
         };
       }
 
@@ -32,7 +35,11 @@ module.exports = function process(data, options) {
         // If it needs permutations, do it here
         if (sampleSlots.length > 0) {
           const slots = sample.filter(o => o.type === 'entity').reduce((prev, cur) => {
-            prev[cur.value] = data.entities[cur.value].data.map(o => o.value);
+            if (cur.variant) {
+              prev[cur.value] = data.entities[cur.value].variants[cur.variant].map(o => o.value);
+            } else {
+              prev[cur.value] = data.entities[cur.value].data.map(o => o.value);
+            }
   
             return prev;
           }, {});

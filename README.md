@@ -10,7 +10,7 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 #
 # You can defines:
 #   - Intents
-#   - Entities
+#   - Entities (with or without variants)
 #   - Synonyms
 #   - Comments (only at the top level)
 
@@ -19,8 +19,8 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 # to generate all possible permutations and training samples.
 
 %[my_intent]
-  some training data
-  another training data that uses an @[entity] at @[date]
+  some training data @[date]
+  another training data that uses an @[entity] at @[date#with_variant]
 
 # Entities contains available samples and could refer to a synonym.
 
@@ -39,9 +39,17 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 # to generators.
 # For snips, `type` and `extensible` are used for example.
 
-@[date](type=snips/datetime, extensible=true)
+@[date](type=snips/datetime)
   tomorrow
   today
+
+# Variants is used only to generate training sample with specific values that should
+# maps to the same entity name, here `date`. Props will be merged with the root entity.
+
+@[date#with_variant]
+  the end of the day
+  nine o clock
+  twenty past five
 
 ```
 
