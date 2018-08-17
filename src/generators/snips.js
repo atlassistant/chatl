@@ -30,15 +30,19 @@ module.exports = function process(data, options) {
       const utterances = [];
 
       for (const sample of intent.data) {
-        const sampleSlots = sample.filter(o => o.type === 'entity');
+        const sampleSlots = sample.filter(o => o.type !== 'text');
 
         // If it needs permutations, do it here
         if (sampleSlots.length > 0) {
-          const slots = sample.filter(o => o.type === 'entity').reduce((prev, cur) => {
-            if (cur.variant) {
-              prev[cur.value] = data.entities[cur.value].variants[cur.variant].map(o => o.value);
-            } else {
-              prev[cur.value] = data.entities[cur.value].data.map(o => o.value);
+          const slots = sampleSlots.reduce((prev, cur) => {
+            if (cur.type === 'entity') {
+              if (cur.variant) {
+                prev[cur.value] = data.entities[cur.value].variants[cur.variant].map(o => o.value);
+              } else {
+                prev[cur.value] = data.entities[cur.value].data.map(o => o.value);
+              }
+            } else if (cur.type === 'synonym') {
+              prev[cur.value] = data.synonyms[cur.value];
             }
   
             return prev;
@@ -49,14 +53,20 @@ module.exports = function process(data, options) {
             let idx = 0;
 
             for (const sampleData of sample) {
-              if (sampleData.type === 'text') {
-                curData.push({ text: sampleData.value });
-              } else if (sampleData.type === 'entity') {
-                curData.push({
-                  text: permutation[idx++],
-                  slot_name: sampleData.value,
-                  entity: data.entities[sampleData.value].props.type || sampleData.value,
-                });                
+              switch (sampleData.type) {
+                case 'text':
+                  curData.push({ text: sampleData.value });
+                  break;
+                case 'synonym':
+                  curData.push({ text: permutation[idx++] });
+                  break;
+                case 'entity':
+                  curData.push({
+                    text: permutation[idx++],
+                    slot_name: sampleData.value,
+                    entity: data.entities[sampleData.value].props.type || sampleData.value,
+                  });      
+                  break;
               }
             }
 

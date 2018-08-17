@@ -1,6 +1,6 @@
 {
   "name": "chatl",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "Simple DSL to generate training file for NLU engines",
   "main": "src/index.js",
   "scripts": {

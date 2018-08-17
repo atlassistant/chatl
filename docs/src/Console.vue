@@ -1,7 +1,14 @@
 <template>
   <div class="console">
     <div class="console__editors">
-      <editor language="chatl" v-model="dsl" />
+      <tabs>
+        <tab title="training.chatl" active style="height: 100%">
+          <editor language="chatl" v-model="dsl" />
+        </tab>
+        <tab title="options.json" style="height: 100%">
+          <editor language="json" v-model="options" />
+        </tab>
+      </tabs>
 
       <editor language="json" ref="result" readonly />
     </div>
@@ -15,16 +22,40 @@
 <script>
 import _ from 'lodash';
 import Editor from './Editor.vue';
+import Tabs from './Tabs.vue';
+import Tab from './Tab.vue';
 import chatl from './../../src/index';
 
 export default {
   name: 'Console',
   components: {
     Editor,
+    Tabs,
+    Tab,
+  },
+  mounted() {
+    this.generate();
   },
   data() {
     return {
-      dsl: '',
+      dsl: `%[get_forecast]
+  will it rain in @[city] @[dateStart]
+
+~[new york]
+  ny
+  nyc
+
+@[dateStart](type=snips/datetime)
+  at the end of the day
+  tomorrow
+  today
+
+@[city]
+  ~[new york]
+  paris`,
+      options: `{
+  "language": "en"
+}`,
       compileNotice: 'All right 👌',
     };
   },
@@ -32,12 +63,15 @@ export default {
     dsl() {
       this.generate();
     },
+    options() {
+      this.generate();
+    },
   },
   methods: {
     generate: _.debounce(function () {
 
       try {
-        const data = chatl.parse(this.dsl, chatl.generators.snips);
+        const data = chatl.parse(this.dsl, chatl.generators.snips, this.options);
 
         this.$refs.result.editor.setValue(JSON.stringify(data, null, 2));
 
@@ -77,9 +111,17 @@ body {
   flex: 1;
 }
 
+.console__editors > * {
+  width: 50%;
+}
+
 .console__status {
   background-color: green;
   color: #fafafa;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   font-family: Consolas, 'Courier New', monospace;
   font-size: 14px;
   line-height: 19px;

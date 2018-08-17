@@ -15,12 +15,16 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 #   - Comments (only at the top level)
 
 # Inside an intent, you got training data.
-# Training data can refer to one or more entities, they will be used by generators
-# to generate all possible permutations and training samples.
+# Training data can refer to one or more entities and/or synonyms, they will be used
+# by generators to generate all possible permutations and training samples.
 
 %[my_intent]
-  some training data @[date]
+  ~[greet] some training data @[date]
   another training data that uses an @[entity] at @[date#with_variant]
+
+~[greet]
+  hi
+  hello
 
 # Entities contains available samples and could refer to a synonym.
 
