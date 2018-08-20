@@ -13,13 +13,13 @@ module.exports = function process(data, options) {
           prev[entity.props.type] = {};
         }
       } else {
-        const variants_data = Object.values(entity.variants).reduce((prev, cur) => prev.concat(cur), []);
+        const variantsData = Object.values(entity.variants).reduce((prev, cur) => prev.concat(cur), []);
 
         prev[cur] = {
           use_synonyms: (entity.data.filter(o => o.synonyms.length > 0).length > 0 
-            || variants_data.filter(o => o.synonyms.length > 0).length > 0),
+            || variantsData.filter(o => o.synonyms.length > 0).length > 0),
           automatically_extensible: JSON.parse(entity.props.extensible || 'true'),
-          data: entity.data.concat(variants_data),
+          data: entity.data.concat(variantsData),
         };
       }
 
