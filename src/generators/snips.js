@@ -29,55 +29,50 @@ module.exports = function process(data, options) {
       const intent = data.intents[cur];
       const utterances = [];
 
-      for (const sample of intent.data) {
+      const sampleWithSynonyms = intent.data.filter(o => o.filter(oo => oo.type === 'synonym').length > 0);
+      const sentences = intent.data.filter(o => o.filter(oo => oo.type === 'synonym').length === 0);
+
+      // Generates all possible sentences with synonym permutations
+      for(const sentence of sampleWithSynonyms) {
+        const synonymsValue = sentence.reduce((prev, cur) => {
+          if (cur.type === 'synonym') {
+            prev[cur.value] = data.synonyms[cur.value];
+          }
+          return prev;
+        }, { });
+
+        for (const permutation of permutate([], synonymsValue)) {
+          let idx = 0;
+
+          sentences.push(sentence.map(o => o.type === 'synonym' ? ({
+            type: 'text',
+            value: permutation[idx++],
+          }) : o));
+        }
+      }
+
+      for (const sample of sentences) {
         const sampleSlots = sample.filter(o => o.type !== 'text');
 
-        // If it needs permutations, do it here
         if (sampleSlots.length > 0) {
-          const slots = sampleSlots.reduce((prev, cur) => {
-            if (cur.type === 'entity') {
-              if (cur.variant) {
-                prev[cur.value] = data.entities[cur.value].variants[cur.variant].map(o => o.value);
-              } else {
-                prev[cur.value] = data.entities[cur.value].data.map(o => o.value);
-              }
-            } else if (cur.type === 'synonym') {
-              prev[cur.value] = data.synonyms[cur.value];
-            }
-  
-            return prev;
-          }, {});
-  
-          for (const permutation of permutate([], slots)) {
-            let curData = [];
-            let idx = 0;
 
-            for (const sampleData of sample) {
-              switch (sampleData.type) {
-                case 'text':
-                  curData.push({ text: sampleData.value });
-                  break;
-                case 'synonym':
-                  curData.push({ text: permutation[idx++] });
-                  break;
-                case 'entity':
-                  curData.push({
-                    text: permutation[idx++],
-                    slot_name: sampleData.value,
-                    entity: data.entities[sampleData.value].props.type || sampleData.value,
-                  });      
-                  break;
-              }
-            }
-
-            utterances.push({
-              data: curData,
-            });
-          }
-        } else {
           utterances.push({
-            data: sample.map(o => ({ text: o.value })),
+            data: sample.map(o => {
+              if (o.type === 'entity') {
+                return { 
+                  text: o.variant ? 
+                    data.entities[o.value].variants[o.variant][0].value 
+                    : data.entities[o.value].data[0].value, 
+                  slot_name: o.value,
+                  entity: data.entities[o.value].props.type || o.value
+                };
+              }
+
+              return { text: o.value };
+            }),
           });
+        } else {
+          utterances.push({ data: sample.map(o => ({ text: o.value })) });
         }
       }
 
