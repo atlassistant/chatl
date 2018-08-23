@@ -2,6 +2,41 @@ const permutate = require('./../utils').permutate;
 const _ = require('lodash');
 
 module.exports = function process(data, options) {
+
+  // Here we are constructing available values for entities and their variant
+  // to output different valeus when requesting by the training sentences.
+
+  const variantValues = {};
+  const entityValues = {};
+
+  for (const entityName of Object.keys(data.entities)) {
+    const entity = data.entities[entityName];
+
+    entityValues[entityName] = {
+      values: entity.data.map(o => o.value),
+      index: 0,
+    }
+
+    variantValues[entityName] = {};
+
+    for (const variantName of Object.keys(entity.variants)) {
+      variantValues[entityName][variantName] = {
+        values: entity.variants[variantName].map(o => o.value),
+        index: 0,
+      };
+    }
+  }
+
+  function getEntityValue(entity, variant) {
+    let lookup = variant ? variantValues[entity][variant] : entityValues[entity];
+
+    if (lookup.index >= lookup.values.length) {
+      lookup.index = 0;
+    }
+
+    return lookup.values[lookup.index++];
+  }
+
   const dataset = {
     language: 'en',
     entities: Object.keys(data.entities).reduce((prev, cur) => {
@@ -60,9 +95,7 @@ module.exports = function process(data, options) {
             data: sample.map(o => {
               if (o.type === 'entity') {
                 return { 
-                  text: o.variant ? 
-                    data.entities[o.value].variants[o.variant][0].value 
-                    : data.entities[o.value].data[0].value, 
+                  text: getEntityValue(o.value, o.variant),
                   slot_name: o.value,
                   entity: data.entities[o.value].props.type || o.value
                 };
