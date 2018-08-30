@@ -35,7 +35,7 @@ function generateSentence(data) {
     return wrap(data);
   } else {
     if (data.synonyms.length && data.synonyms.length > 0) {
-      return `~[${data.value}]`;
+      return wrap({ type: 'synonym', value: data.value });
     }
 
     return data.value;
