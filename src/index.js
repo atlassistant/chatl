@@ -20,4 +20,14 @@ module.exports = {
 
     return result;
   },
+  /**
+   * Handy method to call the stringifier generators which converts a chatl JSON dataset
+   * to a raw string representation. This is some sort of a reverse for the parse method.
+   * 
+   * @param {Object} dataset chatl dataset
+   * @return {string} Raw string representing the dataset
+   */
+  generate(dataset) {
+    return generators.stringifier(dataset);
+  }
 };
