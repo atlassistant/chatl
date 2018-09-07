@@ -142,24 +142,13 @@ module.exports = /*
         peg$startRuleFunction  = peg$parsestart,
 
         peg$c0 = function(data) { 
-        	var r = {
-            	intents: {},
+        	const r = {
+            	intents: data.filter(o => o.type === 'intent').reduce(reduceElement, {}),
                 entities: {},
-                synonyms: {},
+                synonyms: data.filter(o => o.type === 'synonym').reduce(reduceElement, {}),
                 comments: data.filter(o => o.type === 'comment'),
             };
-            
-            for (const synonym of data.filter(o => o.type === 'synonym')) {
-            	r.synonyms[synonym.name] = synonym.data.map(o => o.value);
-            }
-            
-        	for (const intent of data.filter(o => o.type === 'intent')) {
-            	r.intents[intent.name] = { 
-                	props: flattenProps(intent),
-                    data: intent.data,
-                };
-            }
-            
+                    
             for (const entity of data.filter(o => o.type === 'entity')) {
             	if (!r.entities[entity.name]) {
                 	r.entities[entity.name] = { variants: {} };
@@ -170,15 +159,10 @@ module.exports = /*
                 	...flattenProps(entity),
                 };
                 
-                const data =  entity.data.map(o => ({
-                    value: o.value,
-                    synonyms: o.type === 'synonym' ? r.synonyms[o.value] || [] : [],
-                }));
-                
                 if (entity.variant) {
-                	r.entities[entity.name].variants[entity.variant] = data;
+                	r.entities[entity.name].variants[entity.variant] = entity.data;
                 } else {
-                	r.entities[entity.name].data = data;
+                	r.entities[entity.name].data = entity.data;
                 }
             }
             
@@ -250,7 +234,7 @@ module.exports = /*
         peg$c64 = function(entity, props, data) { return { type: 'entity', props, ...entity, data: data.map(o => o[0]) } },
         peg$c65 = peg$otherExpectation("synonym data"),
         peg$c66 = peg$otherExpectation("synonym definition"),
-        peg$c67 = function(entity, data) { return { type: 'synonym', name: entity.name, data: data.map(o => o[0]) } },
+        peg$c67 = function(entity, props, data) { return { type: 'synonym', props, name: entity.name, data: data.map(o => o[0]) } },
         peg$c68 = peg$otherExpectation("comment"),
         peg$c69 = function(t) { return t.join('') },
         peg$c70 = function(value) { return { type: 'comment', value: value.join('') } },
@@ -1741,7 +1725,7 @@ module.exports = /*
     }
 
     function peg$parseSynonymDefinition() {
-      var s0, s1, s2, s3, s4, s5, s6, s7;
+      var s0, s1, s2, s3, s4, s5, s6, s7, s8;
 
       peg$silentFails++;
       s0 = peg$currPos;
@@ -1760,25 +1744,34 @@ module.exports = /*
         if (s2 !== peg$FAILED) {
           s3 = peg$parseEntityName();
           if (s3 !== peg$FAILED) {
-            s4 = peg$parseEOL();
+            s4 = peg$parseProps();
             if (s4 === peg$FAILED) {
               s4 = null;
             }
             if (s4 !== peg$FAILED) {
-              s5 = peg$parseIndent();
+              s5 = peg$parseEOL();
+              if (s5 === peg$FAILED) {
+                s5 = null;
+              }
               if (s5 !== peg$FAILED) {
-                s6 = [];
-                s7 = peg$parseSynonymData();
-                while (s7 !== peg$FAILED) {
-                  s6.push(s7);
-                  s7 = peg$parseSynonymData();
-                }
+                s6 = peg$parseIndent();
                 if (s6 !== peg$FAILED) {
-                  s7 = peg$parseDedent();
+                  s7 = [];
+                  s8 = peg$parseSynonymData();
+                  while (s8 !== peg$FAILED) {
+                    s7.push(s8);
+                    s8 = peg$parseSynonymData();
+                  }
                   if (s7 !== peg$FAILED) {
-                    peg$savedPos = s0;
-                    s1 = peg$c67(s3, s6);
-                    s0 = s1;
+                    s8 = peg$parseDedent();
+                    if (s8 !== peg$FAILED) {
+                      peg$savedPos = s0;
+                      s1 = peg$c67(s3, s4, s7);
+                      s0 = s1;
+                    } else {
+                      peg$currPos = s0;
+                      s0 = peg$FAILED;
+                    }
                   } else {
                     peg$currPos = s0;
                     s0 = peg$FAILED;
@@ -2068,6 +2061,14 @@ module.exports = /*
               	prev[cur.key] = cur.value;
               	return prev;
               }, {});
+        }
+        
+        function reduceElement(prev, cur) {
+        	prev[cur.name] = {
+            	props: flattenProps(cur),
+                data: cur.data,
+            };
+        	return prev;
         }
 
 
