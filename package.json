@@ -4,7 +4,7 @@
   "description": "Simple DSL to generate training file for NLU engines",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha ./src/*.spec.js"
+    "test": "mocha ./src/**/*.spec.js"
   },
   "repository": "https://github.com/atlassistant/chatl",
   "author": "Julien LEICHER",
