@@ -387,6 +387,9 @@ module.exports = /*
           s2 = peg$parseSynonymDefinition();
           if (s2 === peg$FAILED) {
             s2 = peg$parseComment();
+            if (s2 === peg$FAILED) {
+              s2 = peg$parseEOL();
+            }
           }
         }
       }
@@ -400,6 +403,9 @@ module.exports = /*
               s2 = peg$parseSynonymDefinition();
               if (s2 === peg$FAILED) {
                 s2 = peg$parseComment();
+                if (s2 === peg$FAILED) {
+                  s2 = peg$parseEOL();
+                }
               }
             }
           }

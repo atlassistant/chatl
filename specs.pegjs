@@ -18,7 +18,7 @@
     }
 }
 
-start=data:(IntentDefinition/EntityDefinition/SynonymDefinition/Comment)+
+start=data:(IntentDefinition/EntityDefinition/SynonymDefinition/Comment/EOL)+
 { 
 	const r = {
     	intents: data.filter(o => o.type === 'intent').reduce(reduceElement, {}),
