@@ -12,7 +12,7 @@ $ npm install chatl --save
 ### CLI
 
 ```console
-$ chatl <dsl_training_filepath> [options_filepath] -g <generator>
+$ chatl <dsl_training_filepath> [options_filepath] -a <adapter>
 ```
 
 ### Library
@@ -24,7 +24,8 @@ import chatl from 'chatl';
 
 // Parsing the given dsl
 
-chatl.parse(`%[get_forecast]
+const result = chatl.parse(`
+%[get_forecast]
   will it rain in @[city] @[dateStart]
 
 ~[new york]
@@ -38,7 +39,10 @@ chatl.parse(`%[get_forecast]
 
 @[city]
   ~[new york]
-  paris`, chatl.generators.snips);
+  paris`);
+
+// Convert it using the snips adapter!
+chatl.adapters.snips(result);
 
 // Will returns this object
 

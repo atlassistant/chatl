@@ -104,25 +104,6 @@ From the code
 
   # And now you got your dataset ready to be fitted within snips-nlu!
 
-Adapters
---------
-
-For now, only the `snips adapter <https://github.com/snipsco/snips-nlu>`_ has been done. Here is a list of adapters and their respective properties:
-
-+-----------------+----------------------+
-| adapter         | snips                |
-+=================+======================+
-| type (1)        | ✔️                   |
-+-----------------+----------------------+
-| extensible (2)  | ✔️                   |
-+-----------------+----------------------+
-| strictness (3)  | ✔️                   |
-+-----------------+----------------------+
-
-1. Specific type of the entity to use (such as datetime, temperature and so on), if the given entity name could not be found in the chatl declaration, it will assume its a builtin one
-2. Are values outside of training samples allowed?
-3. Parser threshold
-
 Testing
 -------
 

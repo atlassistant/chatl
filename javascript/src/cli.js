@@ -8,21 +8,21 @@ const chatl = require('./index');
 program
   .version(pkg.version)
   .arguments('<trainingFile> [optionsFile]')
-  .option('-g, --generator <name>', 'Name of the generator to use')
+  .option('-a, --adapter <name>', 'Name of the adapter to use')
   .action((trainingFile, optionsFile) => {
     const inputData = fs.readFileSync(trainingFile, 'utf8');
-
-    let generator = null;
     let options = null;
-
-    if (program.generator) {
-      generator = chatl.generators[program.generator];
-    }
 
     if (optionsFile) {
       options = fs.readFileSync(optionsFile, 'utf8');
     }
 
-    console.log(JSON.stringify(chatl.parse(inputData, generator, options), null, 2));
+    let result = chatl.parse(inputData);
+
+    if (program.adapter) {
+      result = chatl.adapters[program.adapter](result, options);
+    }
+
+    console.log(JSON.stringify(result, null, 2));
   })
   .parse(process.argv);

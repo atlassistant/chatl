@@ -42,6 +42,8 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 # Entities and intents can define arbitrary properties that will be made available
 # to generators.
 # For snips, `type`, `extensible` and `strictness` are used for example.
+# If the type value could not be found in the entities declaration, it will assume its a builtin one
+# and on snips, it will prepend the 'snips/' automatically
 
 @[date](type=datetime)
   tomorrow
@@ -56,6 +58,20 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
   twenty past five
 
 ```
+
+## Adapters
+
+For now, only the [snips adapter](https://github.com/snipsco/snips-nlu) has been done. Here is a list of adapters and their respective properties:
+
+|  adapter       | snips |
+|----------------|-------|
+|  type (1)      | ✔️     |
+| extensible (2) | ✔️     |
+| strictness (3) | ✔️     |
+
+1. Specific type of the entity to use (such as datetime, temperature and so on), if the given entity name could not be found in the chatl declaration, it will assume its a builtin one
+2. Are values outside of training samples allowed?
+3. Parser threshold
 
 ## Installation
 
