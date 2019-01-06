@@ -1,3 +1,16 @@
-language: node_js
-node_js:
-  - "8"
+language: python
+python:
+  - "3.6"
+install:
+  - pip install python-coveralls nosexcover
+  - cd python
+  - pip install -e ."[test]"
+  - cd ..
+  - nvm install 10.15
+  - cd javascript
+  - npm i
+script:
+  - cd python
+  - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl
+  - cd ../javascript
+  - npm test
