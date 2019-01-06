@@ -24,7 +24,7 @@ import _ from 'lodash';
 import Editor from './Editor.vue';
 import Tabs from './Tabs.vue';
 import Tab from './Tab.vue';
-import chatl from './../../src/index';
+import chatl from './../../javascript/src/index';
 
 export default {
   name: 'Console',
@@ -45,7 +45,7 @@ export default {
   ny
   nyc
 
-@[dateStart](type=snips/datetime)
+@[dateStart](type=datetime)
   at the end of the day
   tomorrow
   today
@@ -71,9 +71,10 @@ export default {
     generate: _.debounce(function () {
 
       try {
-        const data = chatl.parse(this.dsl, chatl.generators.snips, this.options);
+        const data = chatl.parse(this.dsl);
+        const result = chatl.adapters.snips(data, JSON.parse(this.options));
 
-        this.$refs.result.editor.setValue(JSON.stringify(data, null, 2));
+        this.$refs.result.editor.setValue(JSON.stringify(result, null, 2));
 
         this.compileNotice = 'All right 👌';
       } catch (e) {
