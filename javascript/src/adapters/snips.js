@@ -1,4 +1,5 @@
 const _ = require ('lodash');
+const utils = require('../utils');
 
 const SNIPS_PREFIX = 'snips/';
 
@@ -137,7 +138,37 @@ module.exports = function generateTrainingDataset (chatlData, options = {}) {
       })
 
       if (synonymsInSentence.length > 0) {
+        const synonymValues = synonymsInSentence.reduce(function (prev, cur) {
+          prev[cur.value] = ((synonyms[cur.value] || {}).data || []).map(function (d) {
+            return d.value;
+          });
 
+          return prev;
+        }, {});
+
+        const permutations = utils.permutate(synonymValues);
+        
+        _.each(permutations, function (permutation) {
+          const curSentence = [];
+          let permutIdx = 0;
+
+          _.each(sentence, function (data) {
+            if (data.type === 'synonym') {
+              data = {
+                type: 'text',
+                value: permutation[permutIdx],
+              };
+
+              permutIdx += 1;
+            }
+
+            curSentence.push(getSentenceValue(data));
+          });
+
+          utterances.push({
+            data: curSentence,
+          });
+        });
       } else {
         utterances.push({
           data: sentence.map(getSentenceValue),
@@ -149,13 +180,6 @@ module.exports = function generateTrainingDataset (chatlData, options = {}) {
       utterances,
     };
   });
-
-  // Generates every permutations for intents synonyms
-  // _.forEach(chatlData.intents, (intent, name) => {
-  //   dataset.intents[name] = {
-  //     utterances: [],
-  //   };
-  // });
 
   return _.merge(dataset, options);
 }

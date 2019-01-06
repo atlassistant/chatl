@@ -53,7 +53,7 @@ describe('the snips adapter', function () {
 
     data = utterances[1]['data'];
 
-    expect(data).to.have.length_of(3);
+    expect(_.size(data)).to.equal(3);
     expect(data[0]['text']).to.equal('hi');
     expect(data[1]['text']).to.equal(" what's the weather like in ");
     expect(data[2]['text']).to.equal('new york');
@@ -62,7 +62,7 @@ describe('the snips adapter', function () {
 
     data = utterances[2]['data'];
 
-    expect(data).to.have.length_of(3);
+    expect(_.size(data)).to.equal(3);
     expect(data[0]['text']).to.equal('hello');
     expect(data[1]['text']).to.equal(" what's the weather like in ");
     expect(data[2]['text']).to.equal('los angeles');
