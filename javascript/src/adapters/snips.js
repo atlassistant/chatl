@@ -157,5 +157,5 @@ module.exports = function generateTrainingDataset (chatlData, options = {}) {
   //   };
   // });
 
-  return dataset;
+  return _.merge(dataset, options);
 }
