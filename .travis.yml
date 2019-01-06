@@ -5,10 +5,10 @@ install:
   - pip install python-coveralls nosexcover
   - cd python
   - pip install -e ."[test]"
-  - cd ..
+  - cd ../javascript
   - nvm install 10.15
-  - cd javascript
   - npm i
+  - cd ..
 script:
   - cd python
   - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl

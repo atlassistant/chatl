@@ -41,9 +41,9 @@ Tiny DSL used to generates training dataset for NLU engines (currently `snips-nl
 
 # Entities and intents can define arbitrary properties that will be made available
 # to generators.
-# For snips, `type` and `extensible` are used for example.
+# For snips, `type`, `extensible` and `strictness` are used for example.
 
-@[date](type=snips/datetime)
+@[date](type=datetime)
   tomorrow
   today
 
