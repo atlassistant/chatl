@@ -145,7 +145,7 @@ describe('the snips adapter', function () {
     expect(entity['data'][1]['value']).to.equal('rouen');
     expect(entity['data'][2]['value']).to.equal('new york');
     expect(_.size(entity['data'][2]['synonyms'])).to.equal(2);
-    expect(entity['data'][2]['synonyms']).to.equal(['nyc', 'the big apple']);
+    expect(entity['data'][2]['synonyms']).to.deep.equal(['nyc', 'the big apple']);
 
     expect(dataset['entities']).to.include.key('room');
 
@@ -156,7 +156,7 @@ describe('the snips adapter', function () {
     expect(entity['matching_strictness']).to.equal(0.8);
 
     expect(_.size(entity['data'])).to.equal(2);
-    expect(dataset['entities']).to_not.include.key('date');
+    expect(dataset['entities']).to.not.include.key('date');
     expect(dataset['entities']).to.include.key('snips/datetime');
 
     expect(dataset['entities']['snips/datetime']).to.be.empty;
@@ -188,11 +188,11 @@ describe('the snips adapter', function () {
     expect(entity['use_synonyms']).to.be.true;
     expect(entity['automatically_extensible']).to.be.true;
     expect(_.size(entity['data'][2]['synonyms'])).to.equal(2);
-    expect(entity['data'][2]['synonyms']).to.equal(['nyc', 'the big apple']);
+    expect(entity['data'][2]['synonyms']).to.deep.equal(['nyc', 'the big apple']);
 
     data = entity['data'].map(o => o['value']);
 
-    expect(data).to.equal(['paris', 'rouen', 'new york', 'one variant', 'another one']);
+    expect(data).to.deep.equal(['paris', 'rouen', 'new york', 'one variant', 'another one']);
   });
 
   it('process options', function() {
