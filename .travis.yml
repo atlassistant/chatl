@@ -12,6 +12,5 @@ install:
 script:
   - cd python
   - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl
-  - coveralls
   - cd ../javascript
   - npm test
