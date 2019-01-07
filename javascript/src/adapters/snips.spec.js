@@ -4,6 +4,18 @@ const expect = require('chai').expect;
 const _ = require('lodash');
 
 describe('the snips adapter', function () {
+  it('allow obsolete declaration of type for now', function() {
+    const result = chatl.parse(`
+@[date](snips:type=snips/datetime)
+  tomorrow
+`);
+
+      dataset = snips(result);
+
+      expect(dataset['entities']).to.include.key('snips/datetime');
+      expect(dataset['entities']['snips/datetime']).to.be.empty
+  });
+
   it ('process intents', function () {
     const result = chatl.parse(`
 %[get_forecast]
