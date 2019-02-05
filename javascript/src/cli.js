@@ -23,6 +23,6 @@ program
       result = chatl.adapters[program.adapter](result, options);
     }
 
-    console.log(JSON.stringify(result, null, 2));
+    console.log(chatl.toJSON(result));
   })
   .parse(process.argv);

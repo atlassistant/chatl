@@ -25,6 +25,20 @@ function permutate(remainingAttrs, currentVals = []) {
   return permutations;
 }
 
+/**
+ * Fix JSON number serializing by always add a decimal when needed since
+ * float does not really exists in Javascript and snips (for example) need numbers
+ * to be valid floats.
+ * @param {Object} dataset Dataset to stringify
+ * @returns {String}
+ */
+function toJSON(dataset) {
+  const str = JSON.stringify(dataset, null, 2);
+
+  return str.replace(/"(.*)": ?([0-9]*[^.,{[])(,)?$/gm, '"$1": $2.0$3');
+}
+
 module.exports = {
   permutate,
+  toJSON,
 };

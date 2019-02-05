@@ -16,4 +16,26 @@ describe ('the utils module', function () {
       [ 'london', 'tomorrow' ],
     ]);
   });
+
+  it ('should add decimals to numbers when needed', function () {
+    const r = utils.toJSON({
+      matching_strictness: 1,
+      other_value: 2.3,
+      entities: {
+        data: [
+          'something',
+        ],
+      },
+    });
+
+    expect(r).to.equal(`{
+  "matching_strictness": 1.0,
+  "other_value": 2.3,
+  "entities": {
+    "data": [
+      "something"
+    ]
+  }
+}`);
+  });
 });

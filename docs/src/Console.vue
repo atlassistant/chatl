@@ -74,7 +74,7 @@ export default {
         const data = chatl.parse(this.dsl);
         const result = chatl.adapters.snips(data, JSON.parse(this.options));
 
-        this.$refs.result.editor.setValue(JSON.stringify(result, null, 2));
+        this.$refs.result.editor.setValue(chatl.toJSON(result));
 
         this.compileNotice = 'All right 👌';
       } catch (e) {
