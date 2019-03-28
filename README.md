@@ -69,7 +69,7 @@ For now, only the [snips adapter](https://github.com/snipsco/snips-nlu) has been
 | extensible (2) | ✔️     |
 | strictness (3) | ✔️     |
 
-1. Specific type of the entity to use (such as datetime, temperature and so on), if the given entity name could not be found in the chatl declaration, it will assume its a builtin one
+1. Specific type of the entity to use (such as datetime, temperature and so on), if the given entity name could not be found in the chatl declaration, it will assume its a builtin one (supported types are related to snips and [listed here](https://github.com/snipsco/snips-nlu-ontology#supported-builtin-entities) without the `snips/` prefix)
 2. Are values outside of training samples allowed?
 3. Parser threshold
 
