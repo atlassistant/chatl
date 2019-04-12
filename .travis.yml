@@ -2,7 +2,7 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install python-coveralls nosexcover
+  - pip install codecov nosexcover
   - cd python
   - pip install -e ."[test]"
   - cd ../javascript
@@ -14,3 +14,5 @@ script:
   - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl
   - cd ../javascript
   - npm test
+after_success:
+  - codecov
