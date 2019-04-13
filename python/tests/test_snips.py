@@ -208,7 +208,7 @@ class TestSnips:
 
     data = [ d.get('value') for d in entity['data'] ]
 
-    expect(data).to.equal(['paris', 'rouen', 'new york', 'one variant', 'another one'])
+    expect(data).to.equal(['paris', 'rouen', 'new york', 'another one', 'one variant'])
 
   def test_process_options(self):
     result = parse("""

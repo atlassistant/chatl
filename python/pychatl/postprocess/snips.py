@@ -84,7 +84,7 @@ def snips(dataset, **options):
   for (name, entity) in entities.items():
     # Here we flatten the variants data and we need to sort variants one
     variants_sorted = sorted(entity.get('variants', {}).items(), key=lambda x: x[0])
-    variants_value = [v[1] for v in variants_sorted]
+    variants_value = [sorted(v[1], key=lambda x: x['value']) for v in variants_sorted]
     variants_data = [item for sublist in variants_value for item in sublist]
 
     entity_data = entity.get('data', []) + variants_data
