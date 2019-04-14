@@ -1,2 +1,4 @@
 node_modules
 example
+coverage
+.nyc_output
