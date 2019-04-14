@@ -1,4 +1,5 @@
 node_modules
 example
 coverage
+coverage.lcov
 .nyc_output

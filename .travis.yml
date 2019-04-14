@@ -14,5 +14,6 @@ script:
   - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl
   - cd ../javascript
   - npm test
+  - npm run report
 after_success:
   - codecov
