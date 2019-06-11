@@ -8,10 +8,14 @@ class TestParser:
 %[get_forecast](some=prop, something=else)
   will it rain in @[city]
   ~[greet] what's the weather like in @[city#variant]
+
+%[lights_on]
+  turn the lights on
 """)
 
-    expect(result['intents']).to.have.length_of(1)
+    expect(result['intents']).to.have.length_of(2)
     expect(result['intents']).to.have.key('get_forecast')
+    expect(result['intents']).to.have.key('lights_on')
 
     intent = result['intents']['get_forecast']
 

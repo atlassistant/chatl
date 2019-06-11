@@ -7,12 +7,16 @@ describe('the pegjs parser', function () {
   it('parses intents', function () {
     const result = chatl.parse(`
 %[get_forecast](some=prop, something=else)
-    will it rain in @[city]
-    ~[greet] what's the weather like in @[city#variant]
+  will it rain in @[city]
+  ~[greet] what's the weather like in @[city#variant]
+
+%[lights_on]
+  turn the lights on
 `);
 
-    expect(_.size(result.intents)).to.equal(1);
+    expect(_.size(result.intents)).to.equal(2);
     expect(result.intents).to.include.key('get_forecast');
+    expect(result.intents).to.include.key('lights_on');
 
     const intent = result.intents.get_forecast;
 

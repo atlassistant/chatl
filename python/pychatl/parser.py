@@ -5,7 +5,7 @@ parser = ParserPEG("""
 root = (intent_definition / entity_definition / synonym_definition / comment / EOL)+
 
 EOL = r'\\n|\\r\\n'
-indent = r'[ ]*'
+indent = r'[ \\t]*'
 sentence = r'[^@^~^%^#^\\n^\\r\\n]+'
 
 element_name = r'[^]]+'
