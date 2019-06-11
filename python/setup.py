@@ -12,7 +12,7 @@ setup(
   version=version,
   description='Tiny DSL to generate training dataset for NLU engines',
   long_description=readme,
-  url='https://github.com/atlassistant/pychatl',
+  url='https://github.com/atlassistant/chatl',
   author='Julien LEICHER',
   license='GPL-3.0',
   packages=find_packages(),
