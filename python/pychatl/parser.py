@@ -49,127 +49,140 @@ def parse(input_string, prefix=''):
   tree = parser.parse(input_string)
   visitor = ChatlVisitor(prefix)
 
-  visit_parse_tree(tree, visitor)
+  return visit_parse_tree(tree, visitor)
 
-  return visitor.parsed
+def extract_variant(definition):
+  """Extract variant if any from an entity definition.
 
-class ChatlVisitor (PTNodeVisitor):
-  """Custom visitor to traverse the tree given by Arpeggio and output data that are
-  usable for adapters.
+  Args:
+    definition (str): Full definition
 
-  It could be better but it works already well.
+  Returns:
+    tuple: Value and variant if any
+
+  Examples:
+    >>> extract_variant('hour#fixed')
+    ('hour', 'fixed')
+    >>> extract_variant('room')
+    ('room', None)
 
   """
 
-  def __init__(self, prefix=''):
-    super(ChatlVisitor, self).__init__ ()
+  value, *variant = definition.split('#')
 
-    self._cur_element = None
-    self._cur_name = None
-    self._cur_training_data = []
-    self._cur_raw_data = []
-    self._cur_prop_key = None
-    self._cur_prop_value = None
-    self._cur_props = {}
+  return (value, variant[0] if variant else None)
+
+class ChatlVisitor (PTNodeVisitor):
+  """Custom visitor to traverse the tree given by Arpeggio and output data that are
+  usable by adapters.
+  """
+
+  def __init__(self, prefix=''):
+    super().__init__(defaults=False)
 
     self.prefix = prefix
-    self.parsed = {
-      'intents': {},
-      'entities': {},
-      'synonyms': {},
-    }
-
-  def _append_and_reset(self, key, flatten_data=False):
-    splitted = self._cur_element.split('#')
-    data = [d[0] for d in self._cur_training_data] if flatten_data else self._cur_training_data
-    name = self._cur_element
-    variant = None
-
-    if len(splitted) > 1:
-      name, variant = splitted
-
-    if name not in self.parsed[key]:
-      initial_data = { 'props': {}, 'data': [] }
-
-      # Add the variants key for entities
-      if key == 'entities':
-        initial_data['variants'] = {}
-      
-      self.parsed[key][name] = initial_data
-
-    self.parsed[key][name]['props'].update(self._cur_props)
-    
-    if variant:
-      self.parsed[key][name]['variants'][variant] = data
-    else:
-      self.parsed[key][name]['data'].extend(data)
-
-    self._reset()
-
-  def _reset(self):
-    self._cur_training_data = []
-    self._cur_raw_data = []
-    self._cur_element = None
-    self._cur_props = {}
-
-  def _append_cur_data(self):
-    self._cur_training_data.append (self._cur_raw_data)
-    self._cur_raw_data = []
-
-  def visit_prop_key(self, node, children):
-    self._cur_prop_key = node.value
-
-  def visit_prop_value(self, node, children):
-    self._cur_prop_value = node.value
-    self._cur_props[self._cur_prop_key] = self._cur_prop_value
-
-  def visit_element_name(self, node, children):
-    if self._cur_element:
-      self._cur_name = self.prefix + node.value
-    else:
-      self._reset()
-      self._cur_element = self.prefix + node.value
 
   def visit_sentence(self, node, children):
-    self._cur_raw_data.append({
-      'type': 'text',
-      'value': node.value,
-    })
+    return { 'type': 'text', 'value': node.value }
 
-  def visit_intent_definition(self, node, children):
-    self._append_and_reset('intents')
-
-  def visit_entity_definition(self, node, children):
-    self._append_and_reset('entities', True)
-
-  def visit_synonym_definition(self, node, children):
-    self._append_and_reset('synonyms', True)
+  def visit_synonym_alias(self, node, children):
+    return { 'type': 'synonym', 'value': children.element_name[0] }
 
   def visit_entity_alias(self, node, children):
-    splitted = self._cur_name.split('#')
-    value = self._cur_name
-    variant = None
+    value, variant = extract_variant(children.element_name[0])
 
-    if len (splitted) > 1:
-      value, variant = splitted
-
-    self._cur_raw_data.append({
+    return {
       'type': 'entity',
       'value': value,
       'variant': variant,
-    })
+    }
 
-  def visit_synonym_alias(self, node, children):
-    self._cur_raw_data.append({
-      'type': 'synonym',
-      'value': self._cur_name,
-    })
+  def visit_element_name(self, node, children):
+    return self.prefix + node.value
+
+  def visit_prop_key(self, node, children):
+    return node.value
+
+  def visit_prop_value(self, node, children):
+    return node.value
+
+  def visit_prop(self, node, children):
+    return (children.prop_key[0], children.prop_value[0])
+
+  def visit_props(self, node, children):
+    return dict(children.prop)
 
   def visit_intent_data(self, node, children):
-    self._append_cur_data()
+    return children
 
   def visit_entity_data(self, node, children):
-    self._append_cur_data()
+    return children
 
   def visit_synonym_data(self, node, children):
-    self._append_cur_data()
+    return children
+
+  def visit_intent_definition(self, node, children):
+    return {
+      children.element_name[0]: {
+        'props': children.props[0] if children.props else {},
+        'data': children.intent_data,
+      },
+    }
+
+  def visit_entity_definition(self, node, children):
+    return {
+      children.element_name[0]: {
+        'variants': {},
+        'props': children.props[0] if children.props else {},
+        'data': [c[0] for c in children.entity_data],
+      },
+    }
+
+  def visit_synonym_definition(self, node, children):
+    return {
+      children.element_name[0]: {
+        'props': children.props[0] if children.props else {},
+        'data': [c[0] for c in children.synonym_data],
+      },
+    }
+
+  def visit_comment(self, node, children):
+    return { 
+      'type': 'comment',
+      'value': children.sentence[0]['value'] if children.sentence else '',
+    }
+
+  def visit_root(self, node, children):
+    intents = {}
+    entities = {}
+    synonyms = {}
+    variants = []
+
+    for intent in children.intent_definition:
+      intents.update(intent)
+
+    for synonym in children.synonym_definition:
+      synonyms.update(synonym)
+
+    for entity in children.entity_definition:
+      entities.update(entity)
+
+      # Check if the entity stuff has some variants so it needs to be post-processed
+      for name, data in entity.items():
+        n, v = extract_variant(name)
+
+        if v:
+          variants.append((name, n, v, data))
+
+    # Post process variants now
+    for fullname, name, variant, data in variants:
+      entities[name]['variants'][variant] = data['data']
+      entities[name]['props'].update(data['props'])
+      del entities[fullname]
+
+    return {
+      'intents': intents,
+      'entities': entities,
+      'synonyms': synonyms,
+      'comments': children.comment,
+    }
