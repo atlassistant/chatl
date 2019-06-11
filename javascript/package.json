@@ -4,7 +4,7 @@
   "description": "Simple DSL to generate training file for NLU engines",
   "main": "src/index.js",
   "scripts": {
-    "test": "nyc mocha ./src/**/*.spec.js",
+    "test": "nyc mocha './src/**/*.spec.js'",
     "report": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "repository": "https://github.com/atlassistant/chatl",
