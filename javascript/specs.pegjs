@@ -47,9 +47,9 @@ start=data:(IntentDefinition/EntityDefinition/SynonymDefinition/Comment/EOL)+
     return r;
 }
 
-Samedent "correct indentation" = s:" "* &{ return s.length === level; }
-Indent = &(i:[ ]* &{ cur_step=i.length; level+=cur_step; return true; })
-Dedent = &(i:[ ]* &{ level-=cur_step; return true; })
+Samedent "correct indentation" = s:[ \t]* &{ return s.length === level; }
+Indent = &(i:[ \t]* &{ cur_step=i.length; level+=cur_step; return true; })
+Dedent = &(i:[ \t]* &{ level-=cur_step; return true; })
 
 EntityName "entity name"  = "[" name:(t:((!"]")(!"#") .) { return t.join(''); })+ "#"? variant:(t:((!"]") .) { return t.join(''); })* "]" { return { name: name.join(''), variant: variant.join('') || null }; }
 AnyText "any text" = v:(t:((!"\n")(!"\r\n")(!"@[")(!"~[") .) { return t.join(''); })+ { return v.join(''); }
