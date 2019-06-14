@@ -10,6 +10,8 @@ module.exports = function generateTrainingDataset (chatlData, options = {}) {
     entities: {},
   };
 
+  // TODO: implement a Snips visitor
+
   const entitiesIdx = {};
 
   const entities = chatlData.entities || {};

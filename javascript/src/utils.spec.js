@@ -38,4 +38,22 @@ describe ('the utils module', function () {
   }
 }`);
   });
+
+  it ('should be able to check for synonyms nodes', function () {
+    expect(utils.isSynonym({ 'type': 'text' })).to.be.false
+    expect(utils.isSynonym({ 'type': 'entity' })).to.be.false
+    expect(utils.isSynonym({ 'type': 'synonym' })).to.be.true
+  });
+
+  it ('should be able to check for entity nodes', function () {
+    expect(utils.isEntity({ 'type': 'text' })).to.be.false
+    expect(utils.isEntity({ 'type': 'synonym' })).to.be.false
+    expect(utils.isEntity({ 'type': 'entity' })).to.be.true
+  });
+
+  it ('should be able to check for text nodes', function () {
+    expect(utils.isText({ 'type': 'entity' })).to.be.false
+    expect(utils.isText({ 'type': 'synonym' })).to.be.false
+    expect(utils.isText({ 'type': 'text' })).to.be.true
+  });
 });
