@@ -1,4 +1,6 @@
-const Visitor = require('./visitor');
+const visitor = require('./visitor');
+const Visitor = visitor.Visitor;
+const EntityValueProvider = visitor.EntityValueProvider;
 const expect = require('chai').expect;
 
 const testData = {
@@ -64,11 +66,9 @@ const testData = {
   },
 }
 
-describe('the visitor class', function () {
-  it ('should compute synonyms values', function () {
-    const v = new Visitor(testData);
-
-    expect(v.flattenSynonyms()).to.deep.equal({
+describe('the visitor module', function () {
+  it ('should flatten synonyms values', function () {
+    expect(visitor.flattenSynonyms(testData.synonyms)).to.deep.equal({
       greet: ['hey', 'hello'],
       please: ['please', 'I beg you'],
       basement: ['cellar'],
@@ -167,5 +167,37 @@ describe('the visitor class', function () {
         }
       },
     });
+  });
+});
+
+describe('the entity value provider module', function () {
+  it('should provide different entity values each time', function () {
+    const p = new EntityValueProvider(testData.entities.room);
+
+    expect(p.next()).to.equal(testData.entities.room.data[0].value);
+    expect(p.next()).to.equal(testData.entities.room.data[1].value);
+  });
+
+  it('should go back to start when it reach the end', function () {
+    const p = new EntityValueProvider(testData.entities.room);
+
+    expect(p.next()).to.equal(testData.entities.room.data[0].value);
+    expect(p.next()).to.equal(testData.entities.room.data[1].value);
+    expect(p.next()).to.equal(testData.entities.room.data[0].value);
+  });
+
+  it('should handle variant the same way', function () {
+    const p = new EntityValueProvider(testData.entities.room);
+
+    expect(p.next('secondary')).to.equal(testData.entities.room.variants.secondary[0].value);
+    expect(p.next('secondary')).to.equal(testData.entities.room.variants.secondary[1].value);
+  });
+
+  it('should handle variant loop the same way', function () {
+    const p = new EntityValueProvider(testData.entities.room);
+
+    expect(p.next('secondary')).to.equal(testData.entities.room.variants.secondary[0].value);
+    expect(p.next('secondary')).to.equal(testData.entities.room.variants.secondary[1].value);
+    expect(p.next('secondary')).to.equal(testData.entities.room.variants.secondary[0].value);
   });
 });

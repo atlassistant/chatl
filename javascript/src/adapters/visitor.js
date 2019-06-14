@@ -1,21 +1,60 @@
 const _ = require('lodash');
 const utils = require('../utils');
 
-module.exports = (function () {
+function always(d) { return function () { return d; } }
+function value(d) { return d.value }
+function mapValue(d) { return d.map(value); }
+
+const EntityValueProvider = (function (){
+  function EntityValueProvider(entity) {
+    this.indices = _.assign({
+      '_': -1,
+    }, _.mapValues(entity.variants, always(-1)));
+
+    this.data = _.assign({
+      '_': entity.data.map(value),
+    }, _.mapValues(entity.variants, mapValue));
+  }
+
+  EntityValueProvider.prototype.next = function (variant) {
+    const key = variant || '_';
+    const d = this.data[key];
+
+    if (this.indices[key] >= d.length - 1) {
+      this.indices[key] = -1;
+    }
+
+    this.indices[key] += 1;
+
+    return d[this.indices[key]];
+  }
+
+  return EntityValueProvider;
+}());
+
+function flattenSynonyms(synonyms) {
+  return _.mapValues(synonyms, function (v) {
+    return v.data.map(d => d.value);
+  });
+}
+
+function buildEntityValueProviders(entities) {
+  return _.mapValues(this.entities, function (e) { 
+    return new EntityValueProvider(e);
+  });
+}
+
+const Visitor = (function () {
   
   function Visitor(source) {
     this.intents = source.intents || {};
     this.entities = source.entities || {};
     this.synonyms = source.synonyms || {};
 
-    this.synonymsValues = {};
+    // Build some stuff to ease the process
+    this.synonymsValues = flattenSynonyms(this.synonyms);
+    this.entitiesValues = buildEntityValueProviders(this.entities);
   }
-
-  Visitor.prototype.flattenSynonyms = function () {
-    return _.mapValues(this.synonyms, function (v) {
-      return v.data.map(d => d.value);
-    });
-  };
 
   Visitor.prototype.processSynonymsInIntent = function (sentences) {
     let result = [];
@@ -59,7 +98,6 @@ module.exports = (function () {
   Visitor.prototype.process = function () {
     const self = this;
 
-    this.synonymsValues = this.flattenSynonyms();
     this.intents = _.mapValues(this.intents, function (intent) {
       return _.assign(intent, {
         data: self.processSynonymsInIntent(intent.data),
@@ -75,3 +113,9 @@ module.exports = (function () {
 
   return Visitor;  
 }());
+
+module.exports = {
+  flattenSynonyms,
+  Visitor,
+  EntityValueProvider,
+};
