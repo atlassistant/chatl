@@ -69,6 +69,18 @@ describe('the fp module', function () {
       with: 'something',
       expected: 'TEST',
     },
+    {
+      it: 'should provide a way to flatten an array',
+      given: d => fp.flatten(d),
+      with: [[1, 2], [3, 4]],
+      expected: [1, 2, 3, 4],
+    },
+    {
+      it: 'should flatten an object too',
+      given: d => fp.flatten(d),
+      with: { a: [1, 2], b: [3, 4]},
+      expected: [1, 2, 3, 4],      
+    },
   ];
 
   tests.forEach(test => {

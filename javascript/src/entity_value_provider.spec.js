@@ -64,4 +64,26 @@ describe('the entity value provider class', function () {
     });
   });
 
+  it ('should provide a way to retrieve all valid entity values', function() {
+    const provider = new EntityValueProvider({
+      variants: {
+        secondary: [
+          { type: 'text', value: 'bedroom' },
+          { type: 'text', value: 'bathroom' },
+        ],
+      },
+      data: [
+        { type: 'text', value: 'kitchen' },
+        { type: 'synonym', value: 'basement' },
+      ],
+    });
+
+    expect(provider.all()).to.deep.equal([
+      'kitchen',
+      'basement',
+      'bedroom',
+      'bathroom',
+    ]);
+  });
+
 });

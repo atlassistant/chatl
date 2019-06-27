@@ -45,7 +45,7 @@ class EntityValueProvider {
    * @returns {Array} Array of valid values.
    */
   all() {
-    return [];
+    return fp.flatten(this.data);
   }
 }
 

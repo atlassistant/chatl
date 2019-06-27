@@ -65,7 +65,7 @@ class Augment {
         // Get all synonyms values to generate permutations
         const synonymsData = sentenceSynonyms.reduce((prev, cur) => 
           Object.assign({}, prev, { 
-            [cur.value]: (this._synonymsValues[cur.value] || []),
+            [cur.value]: this.getSynonyms(cur.value),
           }), {});
 
         // And for each permutation, replace by text elements

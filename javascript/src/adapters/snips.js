@@ -1,16 +1,66 @@
 const _ = require ('lodash');
+const fp = require('../fp');
 const utils = require('../utils');
+const Augment = require('../augment');
 
 const SNIPS_PREFIX = 'snips/';
 
-module.exports = function generateTrainingDataset (chatlData, options = {}) {
+module.exports = function generateSnipsDataset(chatl, options={}) {
+  const augment = new Augment(chatl);
+
+  const getEntityType = entity => entity.props['type'] || entity.props['snips:type'];
+
+  const buildEntity = (acc, entity, name) => {
+    const type = getEntityType(entity);
+
+    if (type) {
+      // If it has a type but not present in the dataset, it should be a
+      // built-in entity, so returns an empty object
+      if (!chatl.entities[type]) {
+        return Object.assign(acc, { 
+          [(type.indexOf(SNIPS_PREFIX) === -1 ?
+          SNIPS_PREFIX + type
+          : type)]: {},
+        });
+      }
+
+      // It has a type present in the dataset, it should be considered as a slot
+      return acc;
+    }
+
+    let useSynonyms = false;
+    const values = fp.map(e => {
+      const synonyms = augment.getSynonyms(e);
+      useSynonyms = useSynonyms || (synonyms.length > 0);
+      return {
+        value: e,
+        synonyms,
+      };
+    })(augment.getEntity(name).all());
+
+    return Object.assign(acc, {
+      [name]: {
+        data: values,
+        automatically_extensible: (entity.props.extensible || 'true') === 'true',
+        matching_strictness: Number(entity.props.strictness || '1'),
+        use_synonyms: useSynonyms,
+      },
+    });
+  };
+
+  return _.merge({
+    language: 'en',
+    intents: {},
+    entities: fp.reduce(buildEntity)(chatl.entities),
+  }, options);
+};
+
+function generateTrainingDataset (chatlData, options = {}) {
   const dataset = {
     language: 'en',
     intents: {},
     entities: {},
   };
-
-  // TODO: implement a Snips visitor
 
   const entitiesIdx = {};
 
