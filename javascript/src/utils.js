@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 /**
  * Generates all possible permutations.
  * 
@@ -45,21 +43,21 @@ function toJSON(dataset) {
  * @param {Object} ele Element to check
  * @returns {Boolean}
  */
-function isSynonym(ele) { return ele.type === 'synonym'; }
+const isSynonym = (ele) => ele.type === 'synonym';
 
 /**
  * Check if the given element is an entity.
  * @param {Object} ele Element to check
  * @returns {Boolean}
  */
-function isEntity(ele) { return ele.type === 'entity'; }
+const isEntity = (ele) => ele.type === 'entity';
 
 /**
  * Check if the given element is a text.
  * @param {Object} ele Element to check
  * @returns {Boolean}
  */
-function isText(ele) { return ele.type === 'text'; }
+const isText = (ele) => ele.type === 'text';
 
 module.exports = {
   permutate,

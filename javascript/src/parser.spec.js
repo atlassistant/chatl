@@ -1,99 +1,105 @@
 const chatl = require('./index');
-const _ = require('lodash');
 const expect = require('chai').expect;
 
 describe('the pegjs parser', function () {
 
-  it('parses intents', function () {
-    const result = chatl.parse(`
+  const tests = [
+    {
+      it: 'should parse simple intents with props',
+      dsl: `
 %[get_forecast](some=prop, something=else)
   will it rain in @[city]
   ~[greet] what's the weather like in @[city#variant]
 
 %[lights_on]
   turn the lights on
-`);
-
-    expect(_.size(result.intents)).to.equal(2);
-    expect(result.intents).to.include.key('get_forecast');
-    expect(result.intents).to.include.key('lights_on');
-
-    const intent = result.intents.get_forecast;
-
-    expect(_.size(intent.props)).to.equal(2);
-    expect(intent.props).to.include.keys('some', 'something');
-    expect(intent.props.some).to.equal('prop');
-    expect(intent.props.something).to.equal('else');
-
-    expect(_.size(intent.data)).to.equal(2);
-
-    let data = intent.data[0];
-
-    expect(_.size(data)).to.equal(2);
-    expect(data[0].type).to.equal('text');
-    expect(data[0].value).to.equal('will it rain in ');
-    expect(data[1].type).to.equal('entity');
-    expect(data[1].value).to.equal('city');
-    expect(data[1].variant).to.be.a('null');
-
-    data = intent.data[1];
-
-    expect(_.size(data)).to.equal(3);
-    expect(data[0].type).to.equal('synonym');
-    expect(data[0].value).to.equal('greet');
-    expect(data[1].type).to.equal('text');
-    expect(data[1].value).to.equal(" what's the weather like in ");
-    expect(data[2].type).to.equal('entity');
-    expect(data[2].value).to.equal('city');
-    expect(data[2].variant).to.equal('variant');
-  });
-
-  it('parses empty entities', function () {
-    const result = chatl.parse(`
+`,
+      expected: {
+        intents: {
+          get_forecast: {
+            props: { some: 'prop', something: 'else' },
+            data: [
+              [
+                { type: 'text', value: 'will it rain in ' },
+                { type: 'entity', value: 'city', variant: null },
+              ],
+              [
+                { type: 'synonym', value: 'greet' },
+                { type: 'text', value: " what's the weather like in " },
+                { type: 'entity', value: 'city', variant: 'variant' },
+              ],
+            ],
+          },
+          lights_on: {
+            props: {},
+            data: [
+              [ { type: 'text', value: 'turn the lights on' } ],
+            ],
+          },
+        },
+        entities: {},
+        synonyms: {},
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse empty entities',
+      dsl: `
 @[room]
   kitchen
   bedroom
 
 @[anotherRoom](type=room)
-`);
-
-    expect(_.size(result.entities)).to.equal(2);
-    expect(result.entities).to.include.keys('room', 'anotherRoom')
-
-    expect(result.entities.anotherRoom.props).to.include.key('type')
-    expect(result.entities.anotherRoom.props.type).to.equal('room')
-    expect(result.entities.anotherRoom.data).to.be.empty
-  });
-
-  it('parses entities', function () {
-    const result = chatl.parse(`
+`,
+      expected: {
+        intents: {},
+        entities: {
+          room: {
+            props: {},
+            variants: {},
+            data: [
+              { type: 'text', value: 'kitchen' },
+              { type: 'text', value: 'bedroom' },
+            ],
+          },
+          anotherRoom: {
+            props: { type: 'room' },
+            variants: {},
+            data: [],
+          },
+        },
+        synonyms: {},
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse entities',
+      dsl: `
 @[city](some=prop, something=else)
-    paris
-    rouen
-    ~[new york]
-`);
-
-    expect(_.size(result.entities)).to.equal(1);
-    expect(result.entities).to.include.key('city');
-
-    const entity = result.entities.city;
-
-    expect(_.size(entity.props)).to.equal(2);
-    expect(entity.props).to.include.keys('some', 'something');
-    expect(entity.props.some).to.equal('prop');
-    expect(entity.props.something).to.equal('else');
-
-    expect(_.size(entity.data)).to.equal(3);
-    expect(entity.data[0].value).to.equal('paris');
-    expect(entity.data[0].type).to.equal('text');
-    expect(entity.data[1].value).to.equal('rouen');
-    expect(entity.data[1].type).to.equal('text');
-    expect(entity.data[2].type).to.equal('synonym');
-    expect(entity.data[2].value).to.equal('new york');
-  });
-
-  it('parses entities variants', function () {
-    const result = chatl.parse(`
+  paris
+  rouen
+  ~[new york]
+`,
+      expected: {
+        intents: {},
+        synonyms: {},
+        entities: {
+          city: {
+            props: { some: 'prop', something: 'else' },
+            variants: {},
+            data: [
+              { type: 'text', value: 'paris' },
+              { type: 'text', value: 'rouen' },
+              { type: 'synonym', value: 'new york' },
+            ],
+          },
+        },
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse entity variants',
+      dsl: `
 @[city](some=prop, something=else)
     paris
     rouen
@@ -102,73 +108,76 @@ describe('the pegjs parser', function () {
 @[city#variant](var=prop)
     one variant
     another one
-`);
-
-    expect(_.size(result.entities)).to.equal(1);
-    
-    const entity = result.entities.city;
-
-    expect(_.size(entity.variants)).to.equal(1);
-    expect(entity.variants).to.include.key('variant');
-    expect(_.size(entity.props)).to.equal(3);
-    expect(entity.props).to.include.keys('some', 'something', 'var');
-    expect(entity.props.some).to.equal('prop');
-    expect(entity.props.something).to.equal('else');
-    expect(entity.props.var).to.equal('prop');
-
-    const variant = entity.variants.variant;
-
-    expect(_.size(variant)).to.equal(2);
-
-    expect(variant[0].type).to.equal('text');
-    expect(variant[0].value).to.equal('one variant');
-    expect(variant[1].type).to.equal('text');
-    expect(variant[1].value).to.equal('another one');
-  });
-
-  it('parses synonyms', function () {
-    const result = chatl.parse(`
+`,
+      expected: {
+        intents: {},
+        synonyms: {},
+        entities: {
+          city: {
+            props: { some: 'prop', something: 'else', var: 'prop' },
+            variants: {
+              variant: [
+                { type: 'text', value: 'one variant' },
+                { type: 'text', value: 'another one' },
+              ],
+            },
+            data: [
+              { type: 'text', value: 'paris' },
+              { type: 'text', value: 'rouen' },
+              { type: 'synonym', value: 'new york' },
+            ],
+          },
+        },
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse synonyms',
+      dsl: `
 ~[new york](some=prop, something=else)
-    nyc
-    the big apple
-`);
-
-    expect(_.size(result.synonyms)).to.equal(1);
-    expect(result.synonyms).to.include.key('new york');
-
-    const synonym = result.synonyms['new york'];
-
-    expect(_.size(synonym.props)).to.equal(2);
-    expect(synonym.props).to.include.keys('some', 'something');
-    expect(synonym.props.some).to.equal('prop');
-    expect(synonym.props.something).to.equal('else');
-
-    expect(_.size(synonym.data)).to.equal(2);
-    expect(synonym.data[0].value).to.equal('nyc');
-    expect(synonym.data[0].type).to.equal('text');
-    expect(synonym.data[1].value).to.equal('the big apple');
-    expect(synonym.data[1].type).to.equal('text');
-  });
-
-  it('parses complex properties', function() {
-    const result = chatl.parse(`
+  nyc
+  the big apple
+`,
+      expected: {
+        intents: {},
+        entities: {},
+        synonyms: {
+          'new york': {
+            props: { some: 'prop', something: 'else' },
+            data: [
+              { type: 'text', value: 'nyc' },
+              { type: 'text', value: 'the big apple' },
+            ],
+          },
+        },
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse complex properties',
+      dsl: `
 @[an entity](with complex=property value, and:maybe=an0 ther @)
   a value
-`);
-
-    expect(_.size(result.entities)).to.equal(1);
-    expect(result.entities).to.include.key('an entity');
-
-    entity = result.entities['an entity'];
-
-    expect(_.size(entity.props)).to.equal(2)
-    expect(entity.props).to.include.keys('with complex', 'and:maybe')
-    expect(entity.props['with complex']).to.equal('property value')
-    expect(entity.props['and:maybe']).to.equal('an0 ther @')
-  });
-
-  it('parses comments', function () {
-    const result = chatl.parse(`
+`,
+      expected: {
+        intents: {},
+        synonyms: {},
+        entities: {
+          'an entity': {
+            props: {
+              'with complex': 'property value',
+              'and:maybe': 'an0 ther @',
+            },
+            variants: {},
+            data: [ { type: 'text', value: 'a value'} ],
+          },
+        },
+        comments: [],
+      },
+    },
+    {
+      it: 'should parse comments',
+      dsl: `
 # chatl is really easy to understand.
 #
 # You can defines:
@@ -211,10 +220,95 @@ describe('the pegjs parser', function () {
   the end of the day
   nine o clock
   twenty past five
-`);
+`,
+      expected: {
+        intents: {
+          "my_intent": {
+            "data": [
+              [
+                { "type": "synonym", "value": "greet" },
+                { "type": "text", "value": " some training data " },
+                { "type": "entity", "value": "date", "variant": null },
+              ],
+              [
+                { "type": "text", "value": "another training data that uses an " },
+                { "type": "entity", "value": "entity", "variant": null },
+                { "type": "text", "value": " at " },
+                { "type": "entity", "value": "date", "variant": "with_variant" },
+              ],
+            ],
+            "props": {},
+          },      
+        },
+        entities: {
+          "date": {
+            "data": [
+              { "type": "text", "value": "tomorrow" },
+              { "type": "text", "value": "today" },
+            ],
+            "props": {
+              "type": "snips/datetime"
+            },
+            "variants": {
+              "with_variant": [
+                { "type": "text", "value": "the end of the day" },
+                { "type": "text", "value": "nine o clock" },
+                { "type": "text", "value": "twenty past five" },
+              ],
+            },
+          },
+          "entity": {
+            "data": [
+              { "type": "text", "value": "some value" },
+              { "type": "text", "value": "other value" },
+              { "type": "synonym", "value": "a synonym" },
+            ],
+            "props": {},
+            "variants": {},
+          },      
+        },
+        synonyms: {
+          "a synonym": {
+            "data": [
+              { "type": "text", "value": "possible synonym" },
+              { "type": "text", "value": "another one" },
+            ],
+            "props": {},
+          },
+          "greet": {
+            "data": [
+              { "type": "text", "value": "hi" },
+              { "type": "text", "value": "hello" },
+            ],
+            "props": {},
+          },      
+        },
+        comments: [
+          { "type": "comment", "value": "chatl is really easy to understand." },
+          { "type": "comment", "value": "" },
+          { "type": "comment", "value": "You can defines:" },
+          { "type": "comment", "value": "- Intents" },
+          { "type": "comment", "value": "- Entities (with or without variants)" },
+          { "type": "comment", "value": "- Synonyms" },
+          { "type": "comment", "value": "- Comments (only at the top level)" },
+          { "type": "comment", "value": "Inside an intent, you got training data." },
+          { "type": "comment", "value": "Training data can refer to one or more entities and/or synonyms, they will be used" },
+          { "type": "comment", "value": "by generators to generate all possible permutations and training samples." },
+          { "type": "comment", "value": "Entities contains available samples and could refer to a synonym." },
+          { "type": "comment", "value": "Synonyms contains only raw values" },
+          { "type": "comment", "value": "Entities and intents can define arbitrary properties that will be made available" },
+          { "type": "comment", "value": "to generators." },
+          { "type": "comment", "value": "For snips, type and extensible are used for example." },
+          { "type": "comment", "value": "Variants is used only to generate training sample with specific values that should" },
+          { "type": "comment", "value": "maps to the same entity name, here date. Props will be merged with the root entity." },
+        ],
+      },
+    },
+  ];
 
-    expect(_.size(result.intents)).to.equal(1);
-    expect(_.size(result.entities)).to.equal(2);
-    expect(_.size(result.synonyms)).to.equal(2);
+  tests.forEach(test => {
+    it(test.it, function () {
+      expect(chatl.parse(test.dsl)).to.deep.equal(test.expected);
+    });
   });
 });
