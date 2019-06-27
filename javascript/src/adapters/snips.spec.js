@@ -1,7 +1,6 @@
 const chatl = require('./../index');
 const snips = chatl.adapters.snips;
 const expect = require('chai').expect;
-const _ = require('lodash');
 
 describe('the snips adapter', function () {
 
