@@ -18,7 +18,7 @@ class EntityValueProvider {
     }, fp.map(fp.always(-1))(variants));
 
     this.data = Object.assign({
-      '_': entityData.data.map(fp.prop('value')),
+      '_': fp.map(fp.prop('value'))(entityData.data),
     }, fp.map(fp.map(fp.prop('value')))(variants));
   }
 
