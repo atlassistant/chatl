@@ -15,6 +15,7 @@ describe('the entity value provider class', function () {
         ],
       },
       variant: null,
+      synonyms: {},
       expected: ['paris', 'new york', 'london', 'paris'],
     },
     {
@@ -31,13 +32,49 @@ describe('the entity value provider class', function () {
         ],
       },
       variant: 'secondary',
+      synonyms: {},
       expected: ['bedroom', 'bathroom', 'bedroom'],
+    },
+    {
+      it: 'should also provides synonyms when given at instantiation',
+      entity: {
+        variants: {},
+        data: [
+          { type: 'text', value: 'kitchen' },
+          { type: 'text', value: 'main room' },
+        ],
+      },
+      variant: null,
+      synonyms: {
+        'kitchen': ['cooking room'],
+        'main room': ['living room'],
+      },
+      expected: ['kitchen', 'cooking room', 'main room', 'living room', 'kitchen'],
+    },
+    {
+      it: 'should also provides variants synonyms when given at instantiation',
+      entity: {
+        variants: {
+          secondary: [
+            { type: 'text', value: 'bedroom' },
+            { type: 'text', value: 'bathroom' },
+          ],
+        },
+        data: [
+          { type: 'text', value: 'kitchen' },
+        ],
+      },
+      variant: 'secondary',
+      synonyms: {
+        'bedroom': ['rest room', 'best room'],
+      },
+      expected: ['bedroom', 'rest room', 'best room', 'bathroom', 'bedroom'],
     },
   ];
 
   tests.forEach(test => {
     it (test.it, function () {
-      const provider = new EntityValueProvider(test.entity);
+      const provider = new EntityValueProvider(test.entity, test.synonyms);
 
       test.expected.forEach(expectedOutput => {
         expect(provider.next(test.variant)).to.equal(expectedOutput);

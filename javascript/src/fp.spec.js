@@ -4,8 +4,9 @@ const fp = require('./fp');
 describe('the fp module', function () {
 
   class SayHello {
-    constructor(name) {
+    constructor(name, other_prop) {
       this.name = name;
+      this.other_prop = other_prop;
     }
   }
 
@@ -27,6 +28,12 @@ describe('the fp module', function () {
       given: d => fp.instantiate(SayHello)(d),
       with: 'jean',
       expected: new SayHello('jean'),
+    },
+    {
+      it: 'should instantiate a class with additional parameters if any',
+      given: d => fp.instantiate(SayHello, 'other value')(d),
+      with: 'jean',
+      expected: new SayHello('jean', 'other value'),
     },
     {
       it: 'should provide a function to map on an array',

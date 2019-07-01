@@ -12,7 +12,7 @@ const flatten = d => Array.isArray(d) ?
 
 const always = v => () => v;
 const prop = p => d => d[p];
-const instantiate = klass => d => new klass(d);
+const instantiate = (klass, ...args) => d => new klass(d, ...args);
 const pipe = (...functions) => args => functions.reduce((arg, fn) => fn(arg), args);
 
 module.exports = {

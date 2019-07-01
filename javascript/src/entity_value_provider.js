@@ -8,18 +8,26 @@ class EntityValueProvider {
 
   /**
    * Constructs a nex EntityValueProvider from an entity definition.
+   * If a synonyms lookup table is given, they will be retrieved as a normal
+   * value when calling `next`.
    * @param {Object} entityData Entity data object
+   * @param {Object} synonyms Optional synonyms lookup table
    */
-  constructor(entityData) {
+  constructor(entityData, synonyms={}) {
     const variants = entityData.variants || {};
 
     this.indices = Object.assign({
       '_': -1,
     }, fp.map(fp.always(-1))(variants));
 
-    this.data = Object.assign({
+    const data = Object.assign({
       '_': fp.map(fp.prop('value'))(entityData.data),
     }, fp.map(fp.map(fp.prop('value')))(variants));
+    
+    this._values = fp.flatten(data);
+    this.data = synonyms ? fp.map(d => 
+      fp.reduce((pp, cc) => pp.concat(cc, (synonyms[cc] || [])))(d)
+    )(data) : data;
   }
 
   /**
@@ -41,11 +49,11 @@ class EntityValueProvider {
   }
 
   /**
-   * Retrieve all valid values for this entity.
+   * Retrieve all valid values for this entity without synonyms.
    * @returns {Array} Array of valid values.
    */
   all() {
-    return fp.flatten(this.data);
+    return this._values;
   }
 }
 
