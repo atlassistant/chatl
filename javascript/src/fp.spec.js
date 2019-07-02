@@ -71,6 +71,12 @@ describe('the fp module', function () {
       expected: { f: 6, g: 7 },
     },
     {
+      it: 'should reduce with a given accumulator',
+      given: d => fp.reduce((p, c) => Object.assign(p, { [c]: c }), {})(d),
+      with: [1, 2, 3],
+      expected: { 1: 1, 2: 2, 3: 3 },
+    },
+    {
       it: 'should provide a way to pipe functions',
       given: d => fp.pipe(fp.always('test'), s => s.toUpperCase())(d),
       with: 'something',

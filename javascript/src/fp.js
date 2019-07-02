@@ -2,9 +2,9 @@ const map = cb => d => Array.isArray(d) ?
   d.map(cb)
   : Object.keys(d).reduce((p, c) => Object.assign(p, { [c]: cb(d[c]) }), {});
 
-const reduce = cb => d => Array.isArray(d) ?
-  d.reduce(cb, [])
-  : Object.keys(d).reduce((p, c) => cb(p, d[c], c), {});
+const reduce = (cb, start) => d => Array.isArray(d) ?
+  d.reduce(cb, start || [])
+  : Object.keys(d).reduce((p, c) => cb(p, d[c], c), start || {});
 
 const flatten = d => Array.isArray(d) ?
   d.reduce((p, c) => p.concat(c), [])

@@ -5,6 +5,7 @@ const Augment = require('../augment');
 
 const SNIPS_PREFIX = 'snips/';
 
+// As per https://snips-nlu.readthedocs.io/en/0.19.1/dataset.html
 module.exports = function generateSnipsDataset(chatl, options={}) {
   const augment = new Augment(chatl);
 
