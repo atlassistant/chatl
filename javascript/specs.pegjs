@@ -51,14 +51,16 @@ Samedent "correct indentation" = s:[ \t]* &{ return s.length === level; }
 Indent = &(i:[ \t]* &{ cur_step=i.length; level+=cur_step; return true; })
 Dedent = &(i:[ \t]* &{ level-=cur_step; return true; })
 
-EntityName "entity name"  = "[" name:(t:((!"]")(!"#") .) { return t.join(''); })+ "#"? variant:(t:((!"]") .) { return t.join(''); })* "]" { return { name: name.join(''), variant: variant.join('') || null }; }
+EntityName "entity name"  = "[" 
+	name:(t:((!"]")(!"?")(!"#") .) { return t.join(''); })+ "#"? variant:(t:((!"]")(!"?") .) { return t.join(''); })* o:("?")? "]" { return { name: name.join(''), optional: o != null, variant: variant.join('') || null }; }
 AnyText "any text" = v:(t:((!"\n")(!"\r\n")(!"@[")(!"~[") .) { return t.join(''); })+ { return v.join(''); }
 
 Sentence "sentence" = text:AnyText+ { return { type: 'text', value: text.join('') } }
 Entity "entity alias" = "@" entity:EntityName { return { type: 'entity', value: entity.name, variant: entity.variant } }
 Synonym "synonym alias" = "~" entity:EntityName { return { type: 'synonym', value: entity.name } }
 
-IntentData "intent data" = Samedent inner:(Entity/Synonym/Sentence)+ EOL? { return inner }
+IntentSynonym "synonym inside intent" = "~" entity:EntityName { return { type: 'synonym', value: entity.name, optional: entity.optional } }
+IntentData "intent data" = Samedent inner:(Entity/IntentSynonym/Sentence)+ EOL? { return inner }
 IntentDefinition "intent definition"  = EOL? "%" entity:EntityName props:Props? EOL?
  	Indent data:IntentData+ Dedent
  	{ return { type: 'intent', props, name: entity.name, data } }

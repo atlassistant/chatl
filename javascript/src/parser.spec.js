@@ -24,7 +24,7 @@ describe('the pegjs parser', function () {
                 { type: 'entity', value: 'city', variant: null },
               ],
               [
-                { type: 'synonym', value: 'greet' },
+                { type: 'synonym', value: 'greet', optional: false },
                 { type: 'text', value: " what's the weather like in " },
                 { type: 'entity', value: 'city', variant: 'variant' },
               ],
@@ -154,6 +154,41 @@ describe('the pegjs parser', function () {
       },
     },
     {
+      it: 'should allow optional synonyms in intents',
+      dsl: `
+%[get_restaurant]
+  ~[greet?] find me some restaurant near @[location]
+`,
+      expected: {
+        intents: {
+          get_restaurant: {
+            props: {},
+            data: [
+              [
+                {
+                  type: 'synonym',
+                  value: 'greet',
+                  optional: true,
+                },
+                {
+                  type: 'text',
+                  value: ' find me some restaurant near ',
+                },
+                {
+                  type: 'entity',
+                  value: 'location',
+                  variant: null,
+                },
+              ],
+            ],
+          },
+        },
+        entities: {},
+        synonyms: {},
+        comments: [],
+      },
+    },
+    {
       it: 'should parse complex properties',
       dsl: `
 @[an entity](with complex=property value, and:maybe=an0 ther @)
@@ -226,7 +261,7 @@ describe('the pegjs parser', function () {
           "my_intent": {
             "data": [
               [
-                { "type": "synonym", "value": "greet" },
+                { "type": "synonym", "value": "greet", optional: false },
                 { "type": "text", "value": " some training data " },
                 { "type": "entity", "value": "date", "variant": null },
               ],
