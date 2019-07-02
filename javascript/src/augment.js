@@ -49,7 +49,8 @@ class Augment {
 
   /**
    * This method will generate needed synonyms permutations to replace them by
-   * text components in all intents and returns the final result.
+   * text components in all intents and returns the final result. It will also
+   * handle optional synonyms values.
    * @returns {Object} Intents with data processed.
    */
   getIntents() {
@@ -63,19 +64,41 @@ class Augment {
         }
 
         // Get all synonyms values to generate permutations
+        // For optional synonyms, add an empty entry.
         const synonymsData = sentenceSynonyms.reduce((prev, cur) => 
-          Object.assign({}, prev, { 
-            [cur.value]: this.getSynonyms(cur.value),
+          Object.assign({}, prev, {
+            [cur.value]: (cur.optional ? [''] : []).concat(this.getSynonyms(cur.value)),
           }), {});
 
         // And for each permutation, replace by text elements
         return acc.concat(fp.map(permutation => {
           let idx = 0;
 
-          return fp.map(part => utils.isSynonym(part) ? ({
-            type: 'text',
-            value: permutation[idx++],
-          }): part)(sentence);
+          const parts = fp.reduce((p, c) => {
+            if (!utils.isSynonym(c)) {
+              return p.concat(Object.assign({}, c));
+            }
+
+            const value = permutation[idx++];
+
+            // Check if it's not an empty value
+            if (value) {
+              return p.concat({
+                type: 'text',
+                value,
+              });
+            }
+
+            return p;
+          })(sentence);
+
+          // Trim start and end for respectively first and last elements.
+          if (parts) {
+            fp.pipe(fp.first, fp.set(d => d.value = d.value.trimStart()))(parts);
+            fp.pipe(fp.last, fp.set(d => d.value = d.value.trimEnd()))(parts);
+          }
+
+          return parts;
         })(utils.permutate(synonymsData)));
       }, []),
     });

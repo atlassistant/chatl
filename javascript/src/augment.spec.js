@@ -29,7 +29,7 @@ describe('the augment class', function () {
             props: { a: 5 },
             data: [
               [
-                { type: 'synonym', value: 'hey' },
+                { type: 'synonym', value: 'hey', optional: false },
                 { type: 'text', value: ' there, how are you?' },
               ],
               [
@@ -73,7 +73,7 @@ describe('the augment class', function () {
           sample: {
             data: [
               [
-                { type: 'synonym', value: 'object' },
+                { type: 'synonym', value: 'object', optional: false },
                 { type: 'text', value: ' is '},
                 { type: 'synonym', value: 'color' },
               ]
@@ -117,6 +117,81 @@ describe('the augment class', function () {
               { type: 'text', value: 'flower' },
               { type: 'text', value: ' is '},
               { type: 'text', value: 'red' },
+            ],
+          ],
+        },
+      },
+    },
+    {
+      it: 'shoud permutate with optional synonyms too',
+      dataset: {
+        intents: {
+          sample: {
+            data: [
+              [
+                { type: 'synonym', value: 'greet', optional: true },
+                { type: 'text', value: ' how are ' },
+                { type: 'synonym', value: 'you', optional: true },
+              ]
+            ],
+          },
+        },
+        synonyms: {
+          greet: {
+            data: [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: 'hey' },
+            ],
+          },
+          you: {
+            data: [
+              { type: 'text', value: 'you' },
+              { type: 'text', value: 'ya' },
+            ],
+          },
+        },
+      },
+      expected: {
+        sample: {
+          data: [
+            [
+              { type: 'text', value: 'how are' },
+            ],
+            [
+              { type: 'text', value: 'how are ' },
+              { type: 'text', value: 'you' },
+            ],
+            [
+              { type: 'text', value: 'how are ' },
+              { type: 'text', value: 'ya' },
+            ],
+            [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: ' how are' },
+            ],
+            [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: ' how are ' },
+              { type: 'text', value: 'you' },
+            ],
+            [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: ' how are ' },
+              { type: 'text', value: 'ya' },
+            ],
+            [
+              { type: 'text', value: 'hey' },
+              { type: 'text', value: ' how are' },
+            ],
+            [
+              { type: 'text', value: 'hey' },
+              { type: 'text', value: ' how are ' },
+              { type: 'text', value: 'you' },
+            ],
+            [
+              { type: 'text', value: 'hey' },
+              { type: 'text', value: ' how are ' },
+              { type: 'text', value: 'ya' },
             ],
           ],
         },

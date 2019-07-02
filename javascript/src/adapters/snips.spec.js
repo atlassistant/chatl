@@ -25,7 +25,7 @@ describe('the snips adapter', function () {
       dsl: `
 %[get_forecast]
   will it rain in @[city] on @[date]
-  ~[greet] what's the weather like in @[city#variant]
+  ~[greet?] what's the weather like in @[city#variant]
 
 @[city]
   paris
@@ -58,16 +58,22 @@ describe('the snips adapter', function () {
               },
               {
                 data: [
+                  { text: "what's the weather like in " },
+                  { text: 'new york', entity: 'city', slot_name: 'city' },
+                ],
+              },
+              {
+                data: [
                   { text: 'hi' },
                   { text: " what's the weather like in " },
-                  { text: 'new york', entity: 'city', slot_name: 'city' },
+                  { text: 'los angeles', entity: 'city', slot_name: 'city' },
                 ],
               },
               {
                 data: [
                   { text: 'hello' },
                   { text: " what's the weather like in " },
-                  { text: 'los angeles', entity: 'city', slot_name: 'city' },
+                  { text: 'new york', entity: 'city', slot_name: 'city' },
                 ],
               },
             ],

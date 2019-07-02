@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "nyc mocha './src/**/*.spec.js'",
+    "wintest": "nyc mocha ./src/**/*.spec.js ./src/*.spec.js",
     "report": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "repository": "https://github.com/atlassistant/chatl",

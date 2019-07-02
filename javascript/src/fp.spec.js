@@ -88,6 +88,24 @@ describe('the fp module', function () {
       with: { a: [1, 2], b: [3, 4]},
       expected: [1, 2, 3, 4],      
     },
+    {
+      it: 'should retrieve the first element of an array',
+      given: d => fp.first(d),
+      with: [1, 2, 3],
+      expected: 1,
+    },
+    {
+      it: 'should retrieve the last element of an array',
+      given: d => fp.last(d),
+      with: [1, 2, 3],
+      expected: 3,
+    },
+    {
+      it: 'should set arbitrary prop',
+      given: d => fp.set(o => o.value = 'tata')(d),
+      with: { value: 'toto' },
+      expected: { value: 'tata' },
+    },
   ];
 
   tests.forEach(test => {
