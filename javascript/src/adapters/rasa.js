@@ -48,10 +48,10 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
       return acc;
     }
 
-    return fp.append(fp.reduce((p, c) => fp.append({
+    return fp.append(fp.map(c => ({
       value: c,
       synonyms: augment.getSynonyms(c),
-    })(p), {})(synonyms))(acc);
+    }))(synonyms))(acc);
   };
 
   return _.merge({
