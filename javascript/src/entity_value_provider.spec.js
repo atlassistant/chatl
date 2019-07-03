@@ -40,8 +40,8 @@ describe('the entity value provider class', function () {
       entity: {
         variants: {},
         data: [
-          { type: 'text', value: 'kitchen' },
-          { type: 'text', value: 'main room' },
+          { type: 'synonym', value: 'kitchen' },
+          { type: 'synonym', value: 'main room' },
         ],
       },
       variant: null,
@@ -56,7 +56,7 @@ describe('the entity value provider class', function () {
       entity: {
         variants: {
           secondary: [
-            { type: 'text', value: 'bedroom' },
+            { type: 'synonym', value: 'bedroom' },
             { type: 'text', value: 'bathroom' },
           ],
         },

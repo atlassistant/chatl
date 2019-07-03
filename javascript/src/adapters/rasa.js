@@ -5,17 +5,17 @@ const Augment = require('../augment');
 
 // As per https://rasa.com/docs/rasa/1.1.4/nlu/training-data-format/
 module.exports = function generateTrainingDataset (chatl, options = {}) {
-  const augment = new Augment(chatl);
+  const augment = new Augment(chatl, true);
 
   const buildLookupTable = (acc, _, name) => {
-    return acc.concat({
+    return fp.append({
       name,
       elements: augment.getEntity(name).all(),
-    });
+    })(acc);
   };
 
   const buildIntentExamples = (acc, intent, name) => {
-    return acc.concat(fp.map(sentence => {
+    return fp.append(fp.map(sentence => {
       const entities = [];
 
       return {
@@ -38,7 +38,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
         }, '')(sentence),
         entities,
       };
-    })(intent.data));
+    })(intent.data))(acc);
   };
 
   return _.merge({

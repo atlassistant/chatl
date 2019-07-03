@@ -249,4 +249,31 @@ describe('the augment class', function () {
     expect(augment.getSynonyms('room')).to.be.empty;
   });
 
+  it ('should satisfy the useSynonymsInEntityValueProvider parameter', function () {
+    const augment = new Augment({
+      entities: {
+        city: {
+          props: {},
+          data: [
+            { type: 'synonym', value: 'new york' },
+          ],
+        },
+      },
+      synonyms: {
+        'new york': {
+          data: [
+            { type: 'text', value: 'ny' },
+            { type: 'text', value: 'nyc' },
+          ],
+        },
+      },
+    }, true);
+
+    expect(augment.getEntity('city').next()).to.equal('new york');
+    expect(augment.getEntity('city').next()).to.equal('ny');
+    expect(augment.getEntity('city').next()).to.equal('nyc');
+    expect(augment.getEntity('city').next()).to.equal('new york');
+    expect(augment.getEntity('city').all()).to.deep.equal(['new york']);
+  });
+
 });

@@ -24,9 +24,9 @@ module.exports = function generateSnipsDataset(chatl, options={}) {
 
     if (type) {
       if (type.indexOf(SNIPS_PREFIX) !== -1) {
-        return Object.assign(acc, { 
+        return fp.append({ 
           [type]: {},
-        });
+        })(acc);
       }
 
       // It has a type present in the dataset, it should be considered as a slot
@@ -43,14 +43,14 @@ module.exports = function generateSnipsDataset(chatl, options={}) {
       };
     })(augment.getEntity(name).all());
 
-    return Object.assign(acc, {
+    return fp.append({
       [name]: {
         data: values,
         automatically_extensible: (entity.props.extensible || 'true') === 'true',
         matching_strictness: Number(entity.props.strictness || '1'),
         use_synonyms: useSynonyms,
       },
-    });
+    })(acc);
   };
 
   const buildSentencePart = part => {

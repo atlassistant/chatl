@@ -16,17 +16,17 @@ class EntityValueProvider {
   constructor(entityData, synonyms={}) {
     const variants = entityData.variants || {};
 
-    this.indices = Object.assign({
+    this.indices = fp.append(fp.map(fp.always(-1))(variants))({
       '_': -1,
-    }, fp.map(fp.always(-1))(variants));
+    });
 
-    const data = Object.assign({
+    const data = fp.append(fp.map(fp.map(fp.prop('value')))(variants))({
       '_': fp.map(fp.prop('value'))(entityData.data),
-    }, fp.map(fp.map(fp.prop('value')))(variants));
+    });
     
     this._values = fp.flatten(data);
     this.data = synonyms ? fp.map(d => 
-      fp.reduce((pp, cc) => pp.concat(cc, (synonyms[cc] || [])))(d)
+      fp.reduce((pp, cc) => fp.append(cc, (synonyms[cc] || []))(pp))(d)
     )(data) : data;
   }
 

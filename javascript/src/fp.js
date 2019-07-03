@@ -10,6 +10,11 @@ const flatten = d => Array.isArray(d) ?
   d.reduce((p, c) => p.concat(c), [])
   : flatten(Object.values(d));
 
+const append = (...v) => d => Array.isArray(d) ?
+  d.concat(...v)
+  : Object.assign(d, ...v);
+
+const clone = o => Object.assign({}, o);
 const always = v => () => v;
 const prop = p => d => d[p];
 const instantiate = (klass, ...args) => d => new klass(d, ...args);
@@ -19,6 +24,8 @@ const set = cb => d => cb(d) && d;
 const pipe = (...functions) => args => functions.reduce((arg, fn) => fn(arg), args);
 
 module.exports = {
+  append,
+  clone,
   first,
   last,
   set,

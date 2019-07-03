@@ -112,6 +112,18 @@ describe('the fp module', function () {
       with: { value: 'toto' },
       expected: { value: 'tata' },
     },
+    {
+      it: 'should append to an array',
+      given: d => fp.append(3, 4)(d),
+      with: [1, 2],
+      expected: [1, 2, 3, 4],
+    },
+    {
+      it: 'should append to an object',
+      given: d => fp.append({ some: 'value' }, { else: 'too' })(d),
+      with: { an: 'object' },
+      expected: { an: 'object', some: 'value', else: 'too' },
+    },
   ];
 
   tests.forEach(test => {
