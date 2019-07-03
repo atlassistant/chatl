@@ -128,32 +128,42 @@ describe('the rasa adapter', function () {
 //         }
 //       },
 //     },
-//     {
-//       it: 'should process entities with variants',
-//       dsl: `
-// @[city]
-//   paris
-//   rouen
-//   ~[new york]
+    {
+      it: 'should process entities with variants',
+      dsl: `
+@[city]
+  paris
+  rouen
+  ~[new york]
 
-// @[city#variant]
-//   one variant
-//   another one
+@[city#variant]
+  one variant
+  another one
 
-// ~[new york]
-//   nyc
-//   the big apple
-// `,
-//       options: {},
-//       expected: {
-//         rasa_nlu_data: {
-//           common_examples: [],
-//           regex_features: [],
-//           lookup_tables: [],
-//           entity_synonyms: [],
-//         }
-//       },
-//     },
+~[new york]
+  nyc
+  the big apple
+`,
+      options: {},
+      expected: {
+        rasa_nlu_data: {
+          common_examples: [],
+          regex_features: [],
+          lookup_tables: [
+            {
+              name: 'city',
+              elements: ['paris', 'rouen', 'new york', 'one variant', 'another one'],
+            },
+          ],
+          entity_synonyms: [
+            {
+              value: 'new york',
+              synonyms: ['nyc', 'the big apple'],
+            },
+          ],
+        }
+      },
+    },
 //     {
 //       it: 'should merge options',
 //       dsl: `

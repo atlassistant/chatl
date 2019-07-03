@@ -58,7 +58,7 @@ class Augment {
   getIntents() {
     const processIntentData = intentData => fp.append({
       data: fp.reduce((acc, sentence) => {
-        const sentenceSynonyms = sentence.filter(utils.isSynonym);
+        const sentenceSynonyms = fp.filter(utils.isSynonym)(sentence);
 
         // No synonyms, just returns now
         if (sentenceSynonyms.length === 0) {

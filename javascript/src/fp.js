@@ -17,6 +17,7 @@ const append = (...v) => d => Array.isArray(d) ?
 const clone = o => Object.assign({}, o);
 const always = v => () => v;
 const prop = p => d => d[p];
+const filter = cb => d => d.filter(cb);
 const instantiate = (klass, ...args) => d => new klass(d, ...args);
 const first = d => d[0];
 const last = d => d[d.length - 1];
@@ -30,6 +31,7 @@ module.exports = {
   last,
   set,
   map,
+  filter,
   reduce,
   flatten,
   always,

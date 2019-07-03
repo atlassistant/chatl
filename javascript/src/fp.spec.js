@@ -124,6 +124,12 @@ describe('the fp module', function () {
       with: { an: 'object' },
       expected: { an: 'object', some: 'value', else: 'too' },
     },
+    {
+      it: 'should filter array elements',
+      given: d => fp.filter(a => a % 2 === 0)(d),
+      with: [1, 2, 3, 4],
+      expected: [2, 4],
+    },
   ];
 
   tests.forEach(test => {

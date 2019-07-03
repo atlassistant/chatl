@@ -41,12 +41,25 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     })(intent.data))(acc);
   };
 
+  const buildEntitySynonyms = (acc, entity, name) => {
+    const synonyms = fp.pipe(fp.filter(utils.isSynonym), fp.map(fp.prop('value')))(entity.data);
+
+    if (synonyms.length === 0) {
+      return acc;
+    }
+
+    return fp.append(fp.reduce((p, c) => fp.append({
+      value: c,
+      synonyms: augment.getSynonyms(c),
+    })(p), {})(synonyms))(acc);
+  };
+
   return _.merge({
     rasa_nlu_data: {
       common_examples: fp.reduce(buildIntentExamples, [])(augment.getIntents()),
       regex_features: [],
       lookup_tables: fp.reduce(buildLookupTable, [])(chatl.entities),
-      entity_synonyms: [],
+      entity_synonyms: fp.reduce(buildEntitySynonyms, [])(chatl.entities),
     }
   }, options);
 }
