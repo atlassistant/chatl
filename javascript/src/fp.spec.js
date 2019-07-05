@@ -107,12 +107,6 @@ describe('the fp module', function () {
       expected: 3,
     },
     {
-      it: 'should set arbitrary prop',
-      given: d => fp.set(o => o.value = 'tata')(d),
-      with: { value: 'toto' },
-      expected: { value: 'tata' },
-    },
-    {
       it: 'should append to an array',
       given: d => fp.append(3, 4)(d),
       with: [1, 2],

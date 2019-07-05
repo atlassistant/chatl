@@ -164,6 +164,72 @@ describe('the rasa adapter', function () {
         }
       },
     },
+    {
+      it: 'should use synonyms appropriately in common_examples',
+      dsl: `
+%[my_intent]
+  this one use @[an_entity]
+  another @[an_entity] is used here
+  and another @[an_entity] here
+  and the last @[an_entity]
+
+@[an_entity]
+  entity
+  ~[entity_synonym]
+
+~[entity_synonym]
+  one
+  two
+`,
+      options: {},
+      expected: {
+        rasa_nlu_data: {
+          common_examples: [
+            {
+              text: 'this one use entity',
+              intent: 'my_intent',
+              entities: [
+                { start: 13, end: 19, entity: 'an_entity', value: 'entity' },
+              ],
+            },
+            {
+              text: 'another entity_synonym is used here',
+              intent: 'my_intent',
+              entities: [
+                { start: 8, end: 22, entity: 'an_entity', value: 'entity_synonym' },
+              ],
+            },
+            {
+              text: 'and another one here',
+              intent: 'my_intent',
+              entities: [
+                { start: 12, end: 15, entity: 'an_entity', value: 'entity_synonym' },
+              ],
+            },
+            {
+              text: 'and the last two',
+              intent: 'my_intent',
+              entities: [
+                { start: 13, end: 16, entity: 'an_entity', value: 'entity_synonym' },
+              ],
+            },
+          ],
+          regex_features: [],
+          lookup_tables: [
+            {
+              name: 'an_entity',
+              elements: ['entity', 'entity_synonym'],
+            },
+          ],
+          entity_synonyms: [
+            {
+              value: 'entity_synonym',
+              synonyms: ['one', 'two'],
+            },
+          ],
+        }
+      },
+    },
 //     {
 //       it: 'should merge options',
 //       dsl: `

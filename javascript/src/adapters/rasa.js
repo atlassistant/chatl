@@ -7,6 +7,11 @@ const Augment = require('../augment');
 module.exports = function generateTrainingDataset (chatl, options = {}) {
   const augment = new Augment(chatl, true);
 
+  // For rasa, we need a map of synonyms -> value
+  const synonymsLookup = fp.reduce((acc, synonyms, value) => 
+    fp.append(...fp.map(s => ({ [s]: value }))(synonyms))(acc)
+  )(augment.synonymsValues);
+
   const buildLookupTable = (acc, _, name) => {
     return fp.append({
       name,
@@ -31,7 +36,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
             start: p.length,
             end: p.length + value.length,
             entity: c.value,
-            value,
+            value: synonymsLookup[value] || value, // Check if its a synonym here
           });
 
           return p + value;
@@ -41,7 +46,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     })(intent.data))(acc);
   };
 
-  const buildEntitySynonyms = (acc, entity, name) => {
+  const buildEntitySynonyms = (acc, entity, _) => {
     const synonyms = fp.pipe(fp.filter(utils.isSynonym), fp.map(fp.prop('value')))(entity.data);
 
     if (synonyms.length === 0) {

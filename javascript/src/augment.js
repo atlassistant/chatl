@@ -19,10 +19,10 @@ class Augment {
     this.synonyms = parsedData.synonyms || {};
 
     // Let's flatten some stuff right now
-    this._synonymsValues = fp.map(
+    this.synonymsValues = fp.map(
       fp.pipe(fp.prop('data'), fp.map(fp.prop('value'))))(this.synonyms);
-    this._entitiesValues = fp.map(fp.instantiate(EntityValueProvider, 
-      useSynonymsInEntityValueProvider ? this._synonymsValues : {}))(this.entities);
+    this.entitiesValues = fp.map(fp.instantiate(EntityValueProvider, 
+      useSynonymsInEntityValueProvider ? this.synonymsValues : {}))(this.entities);
   }
 
   /**
@@ -31,7 +31,7 @@ class Augment {
    * @returns {EntityValueProvider}
    */
   getEntity(name) {
-    const provider = this._entitiesValues[name];
+    const provider = this.entitiesValues[name];
 
     if (!provider) {
       throw new Error(`Could not find an entity with the name: ${name}`);
@@ -46,7 +46,7 @@ class Augment {
    * @returns {Array} Synonyms values
    */
   getSynonyms(entity) {
-    return this._synonymsValues[entity] || [];
+    return this.synonymsValues[entity] || [];
   }
 
   /**
@@ -95,8 +95,8 @@ class Augment {
 
           // Trim start and end for respectively first and last elements.
           if (parts) {
-            fp.pipe(fp.first, fp.set(d => d.value = d.value.trimStart()))(parts);
-            fp.pipe(fp.last, fp.set(d => d.value = d.value.trimEnd()))(parts);
+            fp.first(parts).value = fp.first(parts).value.trimStart();
+            fp.last(parts).value = fp.last(parts).value.trimEnd();
           }
 
           return parts;
