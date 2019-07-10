@@ -65,7 +65,8 @@ IntentDefinition "intent definition"  = EOL? "%" entity:EntityName props:Props? 
  	Indent data:IntentData+ Dedent
  	{ return { type: 'intent', props, name: entity.name, data } }
 
-Prop "property" = key:[^=^\n^\r\n]* "=" value:[^,^)^\n^\r\n]* [ ]* [,]? [ ]* { return { key: key.join(''), value: value.join('') } }
+PropValue "property value" = "`" v:[^\r^\n^`]* "`" { return v } / v:[^\r^\n^,^)]* { return v }
+Prop "property" = key:[^=^\n^\r\n]* "=" value:PropValue [ ]* [,]? [ ]* { return { key: key.join(''), value: value.join('') } }
 Props "properties" = "(" props:Prop+ ")" { return props }
 
 EntityData "entity data" = Samedent inner:(Synonym/Sentence)+ EOL? { return inner }
