@@ -7,12 +7,29 @@ const Augment = require('../augment');
 module.exports = function generateTrainingDataset (chatl, options = {}) {
   const augment = new Augment(chatl, true);
 
+  const getRealEntity = entityName => {
+    const type = chatl.entities[entityName].props['type'];
+
+    if (type && chatl.entities[type]) {
+      return type;
+    }
+
+    return entityName;
+  }
+
   // For rasa, we need a map of synonyms -> value
   const synonymsLookup = fp.reduce((acc, synonyms, value) => 
     fp.append(...fp.map(s => ({ [s]: value }))(synonyms))(acc)
   )(augment.synonymsValues);
 
   const buildLookupTable = (acc, _, name) => {
+    const entityName = getRealEntity(name);
+
+    // Entity reference to another, returns now
+    if (entityName !== name) {
+      return acc;
+    }
+
     return fp.append({
       name,
       elements: augment.getEntity(name).all(),
@@ -30,12 +47,13 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
             return p + c.value;
           }
 
-          const value = augment.getEntity(c.value).next(c.variant);
+          const entityName = getRealEntity(c.value);
+          const value = augment.getEntity(entityName).next(c.variant);
 
           entities.push({
             start: p.length,
             end: p.length + value.length,
-            entity: c.value,
+            entity: entityName,
             value: synonymsLookup[value] || value, // Check if its a synonym here
           });
 

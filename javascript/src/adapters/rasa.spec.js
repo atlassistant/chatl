@@ -76,28 +76,42 @@ describe('the rasa adapter', function () {
         }
       },
     },
-//     {
-//       it: 'should process empty entities which refer to another one',
-//       dsl: `
-// %[my_intent]
-//   we should go from @[room] to @[anotherRoom]
+    {
+      it: 'should process empty entities which refer to another one',
+      dsl: `
+%[my_intent]
+  we should go from @[room] to @[anotherRoom]
 
-// @[room]
-//   kitchen
-//   bedroom
+@[room]
+  kitchen
+  bedroom
 
-// @[anotherRoom](type=room)
-// `,
-//       options: {},
-//       expected: {
-//         rasa_nlu_data: {
-//           common_examples: [],
-//           regex_features: [],
-//           lookup_tables: [],
-//           entity_synonyms: [],
-//         }
-//       },
-//     },
+@[anotherRoom](type=room)
+`,
+      options: {},
+      expected: {
+        rasa_nlu_data: {
+          common_examples: [
+            {
+              text: 'we should go from kitchen to bedroom',
+              intent: 'my_intent',
+              entities: [
+                { start: 18, end: 25, value: 'kitchen', entity: 'room' },
+                { start: 29, end: 36, value: 'bedroom', entity: 'room' },
+              ],
+            },
+          ],
+          regex_features: [],
+          lookup_tables: [
+            {
+              name: 'room',
+              elements: ['kitchen', 'bedroom'],
+            },
+          ],
+          entity_synonyms: [],
+        }
+      },
+    },
 //     {
 //       it: 'should process entities with specific properties',
 //       dsl: `

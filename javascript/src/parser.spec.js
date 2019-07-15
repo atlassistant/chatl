@@ -211,6 +211,32 @@ describe('the pegjs parser', function () {
       },
     },
     {
+      it: 'should parse property with back ticks',
+      dsl: `
+@[zipcode](regex=\`[0-9]{5}\`, another=prop)
+  27000
+  76000
+`,
+      expected: {
+        intents: {},
+        synonyms: {},
+        entities: {
+          zipcode: {
+            props: {
+              regex: '[0-9]{5}',
+              another: 'prop',
+            },
+            variants: {},
+            data: [
+              { type: 'text', value: '27000' },
+              { type: 'text', value: '76000' },
+            ],
+          },
+        },
+        comments: [],
+      },
+    },
+    {
       it: 'should parse comments',
       dsl: `
 # chatl is really easy to understand.
