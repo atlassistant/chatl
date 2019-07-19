@@ -17,6 +17,8 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     return entityName;
   }
 
+  const getRegexProp = entityName => chatl.entities[entityName].props['regex'];
+
   // For rasa, we need a map of synonyms -> value
   const synonymsLookup = fp.reduce((acc, synonyms, value) => 
     fp.append(...fp.map(s => ({ [s]: value }))(synonyms))(acc)
@@ -25,8 +27,8 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
   const buildLookupTable = (acc, _, name) => {
     const entityName = getRealEntity(name);
 
-    // Entity reference to another, returns now
-    if (entityName !== name) {
+    // Entity reference to another or has regex feature, returns now
+    if (entityName !== name || getRegexProp(name)) {
       return acc;
     }
 
@@ -77,10 +79,23 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     }))(synonyms))(acc);
   };
 
+  const buildRegexFeatures = (acc, _, name) => {
+    const pattern = getRegexProp(name);
+
+    if (pattern) {
+      return fp.append({
+        name,
+        pattern,
+      })(acc);
+    }
+
+    return acc;
+  };
+
   return _.merge({
     rasa_nlu_data: {
       common_examples: fp.reduce(buildIntentExamples, [])(augment.getIntents()),
-      regex_features: [],
+      regex_features: fp.reduce(buildRegexFeatures, [])(chatl.entities),
       lookup_tables: fp.reduce(buildLookupTable, [])(chatl.entities),
       entity_synonyms: fp.reduce(buildEntitySynonyms, [])(chatl.entities),
     }

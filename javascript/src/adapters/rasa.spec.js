@@ -112,36 +112,29 @@ describe('the rasa adapter', function () {
         }
       },
     },
-//     {
-//       it: 'should process entities with specific properties',
-//       dsl: `
-// @[city]
-//   paris
-//   rouen
-//   ~[new york]
-
-// @[room](extensible=false, strictness=0.8)
-//   kitchen
-//   bedroom
-
-// @[date](type=datetime)
-//   tomorrow
-//   on tuesday
-
-// ~[new york]
-//   nyc
-//   the big apple
-// `,
-//       options: {},
-//       expected: {
-//         rasa_nlu_data: {
-//           common_examples: [],
-//           regex_features: [],
-//           lookup_tables: [],
-//           entity_synonyms: [],
-//         }
-//       },
-//     },
+    {
+      it: 'should process entities with specific properties',
+      dsl: `
+@[zipcode](regex=\`[0-9]{5}\`)
+  27000
+  76000
+  27310
+`,
+      options: {},
+      expected: {
+        rasa_nlu_data: {
+          common_examples: [],
+          regex_features: [
+            {
+              name: 'zipcode',
+              pattern: '[0-9]{5}',
+            }
+          ],
+          lookup_tables: [],
+          entity_synonyms: [],
+        }
+      },
+    },
     {
       it: 'should process entities with variants',
       dsl: `
@@ -244,23 +237,42 @@ describe('the rasa adapter', function () {
         }
       },
     },
-//     {
-//       it: 'should merge options',
-//       dsl: `
-// @[city]
-//   paris
-//   rouen
-// `,
-//       options: { },
-//       expected: {
-//         rasa_nlu_data: {
-//           common_examples: [],
-//           regex_features: [],
-//           lookup_tables: [],
-//           entity_synonyms: [],
-//         }
-//       },
-//     },
+    {
+      it: 'should merge options',
+      dsl: `
+@[city]
+  paris
+  rouen
+`,
+      options: {
+        rasa_nlu_data: {
+          entity_synonyms: [
+            {
+              value: 'new york',
+              synonyms: ['ny', 'nyc'],
+            },
+          ],
+        },
+      },
+      expected: {
+        rasa_nlu_data: {
+          common_examples: [],
+          regex_features: [],
+          lookup_tables: [
+            {
+              name: 'city',
+              elements: ['paris', 'rouen'],
+            },
+          ],
+          entity_synonyms: [
+            {
+              value: 'new york',
+              synonyms: ['ny', 'nyc'],
+            },
+          ],
+        }
+      },
+    },
   ];
 
 
