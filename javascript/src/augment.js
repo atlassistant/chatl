@@ -95,8 +95,8 @@ class Augment {
 
           // Trim start and end for respectively first and last elements.
           if (parts) {
-            fp.first(parts).value = fp.first(parts).value.trimStart();
-            fp.last(parts).value = fp.last(parts).value.trimEnd();
+            fp.first(parts).value = fp.first(parts).value.trimLeft();
+            fp.last(parts).value = fp.last(parts).value.trimRight();
           }
 
           return parts;
