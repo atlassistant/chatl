@@ -95,23 +95,22 @@ class Augment {
 
           // Remove uneeded whitespaces introduced by optional synonyms
           const strippedParts = fp.reduce((f, part, i) => {
-            // Whitespace, check if needed or not
-            if (part.value.trim() === '') {
-              if ((f.length === 0 || i === (parts.length - 1)) // First or last one
-                  || (fp.pipe(fp.last, fp.prop('value'), fp.last)(f) === ' ') // Last element char was a space
-                  || (fp.pipe(fp.prop('value'), fp.first)(parts[i + 1]) === ' ')) { // Next element first char is a space
-                return f;
-              }
+            // First element
+            if (i === 0) {
+              part.value = part.value.trimLeft();
+            }
+
+            // Last element or the following one starts with a space
+            if (i === (parts.length - 1) || parts[i + 1].value[0] === ' ') {
+              part.value = part.value.trimRight();
+            }
+
+            if (part.value === '') {
+              return f;
             }
 
             return fp.append(part)(f);
           })(parts);
-
-          // Trim start and end for respectively first and last elements.
-          if (strippedParts) {
-            fp.first(strippedParts).value = fp.first(strippedParts).value.trimLeft();
-            fp.last(strippedParts).value = fp.last(strippedParts).value.trimRight();
-          }
 
           return strippedParts;
         })(utils.permutate(synonymsData)))(acc);

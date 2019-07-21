@@ -95,18 +95,6 @@ describe('the fp module', function () {
       expected: [1, 2, 3, 4],      
     },
     {
-      it: 'should retrieve the first element of an array',
-      given: d => fp.first(d),
-      with: [1, 2, 3],
-      expected: 1,
-    },
-    {
-      it: 'should retrieve the last element of an array',
-      given: d => fp.last(d),
-      with: [1, 2, 3],
-      expected: 3,
-    },
-    {
       it: 'should append to an array',
       given: d => fp.append(3, 4)(d),
       with: [1, 2],

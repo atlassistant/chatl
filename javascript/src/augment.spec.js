@@ -1,6 +1,7 @@
 const expect = require('chai').expect;
 const EntityValueProvider = require('./entity_value_provider');
 const Augment = require('./augment');
+const parser = require('./parser');
 
 describe('the augment class', function () {
 
@@ -197,69 +198,6 @@ describe('the augment class', function () {
         },
       },
     },
-    {
-      it: 'should properly handle whitespaces between optional synonyms',
-      dataset: {
-        intents: {
-          sample: {
-            data: [
-              [
-                { type: 'synonym', value: 'greet', optional: true },
-                { type: 'text', value: ' ' },
-                { type: 'synonym', value: 'name', optional: true },
-                { type: 'text', value: ' how are you' },
-              ]
-            ],
-          },
-        },
-        synonyms: {
-          greet: {
-            data: [
-              { type: 'text', value: 'hi' },
-              { type: 'text', value: 'hey' },
-            ],
-          },
-          name: {
-            data: [
-              { type: 'text', value: 'john' },
-            ],
-          },
-        },
-      },
-      expected: {
-        sample: {
-          data: [
-            [
-              { type: 'text', value: 'how are you' },
-            ],
-            [
-              { type: 'text', value: 'john' },
-              { type: 'text', value: ' how are you' },
-            ],
-            [
-              { type: 'text', value: 'hi' },
-              { type: 'text', value: ' how are you' },
-            ],
-            [
-              { type: 'text', value: 'hi' },
-              { type: 'text', value: ' ' },
-              { type: 'text', value: 'john' },
-              { type: 'text', value: ' how are you' },
-            ],
-            [
-              { type: 'text', value: 'hey' },
-              { type: 'text', value: ' how are you' },
-            ],
-            [
-              { type: 'text', value: 'hey' },
-              { type: 'text', value: ' ' },
-              { type: 'text', value: 'john' },
-              { type: 'text', value: ' how are you' },
-            ],
-          ],
-        },
-      },
-    },
   ];
 
   getIntentsTests.forEach(test => {
@@ -267,6 +205,83 @@ describe('the augment class', function () {
       const state = new Augment(test.dataset);
 
       expect(state.getIntents()).to.deep.equal(test.expected);
+    });
+  });
+
+  const synonymsTests = [
+    {
+      given: `
+%[intent]
+  ~[greet?] welcome ~[back?]
+
+~[greet]
+  hi
+  hey
+
+~[back]
+  back
+`,
+      expected: [
+        'welcome',
+        'welcome back',
+        'hi welcome',
+        'hi welcome back',
+        'hey welcome',
+        'hey welcome back',
+      ],
+    },
+    {
+      given: `
+%[intent]
+  welcome ~[back?] ~[name?]
+
+~[name]
+  john
+  bob
+
+~[back]
+  back
+`,
+      expected: [
+        'welcome',
+        'welcome john',
+        'welcome bob',
+        'welcome back',
+        'welcome back john',
+        'welcome back bob',
+      ],
+    },
+    {
+      given: `
+%[intent]
+  welcome ~[back?] ~[name?] in town
+
+~[name]
+  john
+  bob
+
+~[back]
+  back
+`,
+      expected: [
+        'welcome in town',
+        'welcome john in town',
+        'welcome bob in town',
+        'welcome back in town',
+        'welcome back john in town',
+        'welcome back bob in town',
+      ],
+    },
+  ];
+
+  // This one is separated because there is so much case to test  
+  synonymsTests.forEach(test => {
+    it ('should handle synonym permutations', function () {
+      const augment = new Augment(parser.parse(test.given));
+      const intent = augment.getIntents().intent;
+      const sentence = intent.data.map(d => d.map(o => o.value).join(''));
+
+      expect(sentence).to.deep.equal(test.expected);
     });
   });
 

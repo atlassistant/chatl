@@ -73,20 +73,6 @@ const filter = cb => d => d.filter(cb);
 const instantiate = (klass, ...args) => d => new klass(d, ...args);
 
 /**
- * Retrieve the first element of an array.
- * @param {Array} d The array
- * @returns {Function}
- */
-const first = d => d[0];
-
-/**
- * Retrieve the last element of an array.
- * @param {Array} d The array
- * @returns {Function}
- */
-const last = d => d[d.length - 1];
-
-/**
  * Returns a function which pipe the given ones.
  * @param  {...any} functions Functions to chain
  * @returns {Function}
@@ -96,8 +82,6 @@ const pipe = (...functions) => args => functions.reduce((arg, fn) => fn(arg), ar
 module.exports = {
   append,
   clone,
-  first,
-  last,
   map,
   filter,
   reduce,
