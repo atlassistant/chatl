@@ -93,13 +93,27 @@ class Augment {
             return p;
           })(sentence);
 
+          // Remove uneeded whitespaces introduced by optional synonyms
+          const strippedParts = fp.reduce((f, part, i) => {
+            // Whitespace, check if needed or not
+            if (part.value.trim() === '') {
+              if ((f.length === 0 || i === (parts.length - 1)) // First or last one
+                  || (fp.pipe(fp.last, fp.prop('value'), fp.last)(f) === ' ') // Last element char was a space
+                  || (fp.pipe(fp.prop('value'), fp.first)(parts[i + 1]) === ' ')) { // Next element first char is a space
+                return f;
+              }
+            }
+
+            return fp.append(part)(f);
+          })(parts);
+
           // Trim start and end for respectively first and last elements.
-          if (parts) {
-            fp.first(parts).value = fp.first(parts).value.trimStart();
-            fp.last(parts).value = fp.last(parts).value.trimEnd();
+          if (strippedParts) {
+            fp.first(strippedParts).value = fp.first(strippedParts).value.trimLeft();
+            fp.last(strippedParts).value = fp.last(strippedParts).value.trimRight();
           }
 
-          return parts;
+          return strippedParts;
         })(utils.permutate(synonymsData)))(acc);
       })(intentData.data),
     })(intentData);

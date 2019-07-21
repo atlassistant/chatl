@@ -196,7 +196,70 @@ describe('the augment class', function () {
           ],
         },
       },
-    }
+    },
+    {
+      it: 'should properly handle whitespaces between optional synonyms',
+      dataset: {
+        intents: {
+          sample: {
+            data: [
+              [
+                { type: 'synonym', value: 'greet', optional: true },
+                { type: 'text', value: ' ' },
+                { type: 'synonym', value: 'name', optional: true },
+                { type: 'text', value: ' how are you' },
+              ]
+            ],
+          },
+        },
+        synonyms: {
+          greet: {
+            data: [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: 'hey' },
+            ],
+          },
+          name: {
+            data: [
+              { type: 'text', value: 'john' },
+            ],
+          },
+        },
+      },
+      expected: {
+        sample: {
+          data: [
+            [
+              { type: 'text', value: 'how are you' },
+            ],
+            [
+              { type: 'text', value: 'john' },
+              { type: 'text', value: ' how are you' },
+            ],
+            [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: ' how are you' },
+            ],
+            [
+              { type: 'text', value: 'hi' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+              { type: 'text', value: ' how are you' },
+            ],
+            [
+              { type: 'text', value: 'hey' },
+              { type: 'text', value: ' how are you' },
+            ],
+            [
+              { type: 'text', value: 'hey' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+              { type: 'text', value: ' how are you' },
+            ],
+          ],
+        },
+      },
+    },
   ];
 
   getIntentsTests.forEach(test => {
