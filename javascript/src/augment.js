@@ -95,21 +95,23 @@ class Augment {
 
           // Remove uneeded whitespaces introduced by optional synonyms
           const strippedParts = fp.reduce((f, part, i) => {
+            const p = fp.clone(part);
+
             // First element
             if (i === 0) {
-              part.value = part.value.trimLeft();
+              p.value = p.value.trimLeft();
             }
 
             // Last element or the following one starts with a space
             if (i === (parts.length - 1) || parts[i + 1].value[0] === ' ') {
-              part.value = part.value.trimRight();
+              p.value = p.value.trimRight();
             }
 
-            if (part.value === '') {
+            if (p.value === '') {
               return f;
             }
 
-            return fp.append(part)(f);
+            return fp.append(p)(f);
           })(parts);
 
           return strippedParts;

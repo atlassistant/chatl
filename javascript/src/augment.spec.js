@@ -198,6 +198,143 @@ describe('the augment class', function () {
         },
       },
     },
+    {
+      it: 'should handle trailing whitespace correctly',
+      dataset: {
+        intents: {
+          sample: {
+            data: [
+              [
+                { type: 'text', value: 'welcome ' },
+                { type: 'synonym', value: 'back', optional: true },
+                { type: 'text', value: ' ' },
+                { type: 'synonym', value: 'name', optional: true },
+              ],
+            ],
+          },
+        },
+        synonyms: {
+          back: {
+            data: [
+              { type: 'text', value: 'back' },
+            ],
+          },
+          name: {
+            data: [
+              { type: 'text', value: 'john' },
+              { type: 'text', value: 'bob' },
+            ],
+          },
+        },
+      },
+      expected: {
+        sample: {
+          data: [
+            [
+              { type: 'text', value: 'welcome' },
+            ],
+            [
+              { type: 'text', value: 'welcome' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+            ],
+            [
+              { type: 'text', value: 'welcome' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'bob' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'bob' },
+            ],
+          ],
+        },
+      },
+    },
+    {
+      it: 'should handle optional synonyms inside sentence too',
+      dataset: {
+        intents: {
+          sample: {
+            data: [
+              [
+                { type: 'text', value: 'welcome ' },
+                { type: 'synonym', value: 'back', optional: true },
+                { type: 'text', value: ' ' },
+                { type: 'synonym', value: 'name', optional: true },
+                { type: 'text', value: ' in town' },
+              ],
+            ],
+          },
+        },
+        synonyms: {
+          back: {
+            data: [
+              { type: 'text', value: 'back' },
+            ],
+          },
+          name: {
+            data: [
+              { type: 'text', value: 'john' },
+              { type: 'text', value: 'bob' },
+            ],
+          },
+        },
+      },
+      expected: {
+        sample: {
+          data: [
+            [
+              { type: 'text', value: 'welcome' },
+              { type: 'text', value: ' in town' },
+            ],
+            [
+              { type: 'text', value: 'welcome' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+              { type: 'text', value: ' in town' },
+            ],
+            [
+              { type: 'text', value: 'welcome' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'bob' },
+              { type: 'text', value: ' in town' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+              { type: 'text', value: ' in town' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'john' },
+              { type: 'text', value: ' in town' },
+            ],
+            [
+              { type: 'text', value: 'welcome ' },
+              { type: 'text', value: 'back' },
+              { type: 'text', value: ' ' },
+              { type: 'text', value: 'bob' },
+              { type: 'text', value: ' in town' },
+            ],
+          ],
+        },
+      },
+    },
   ];
 
   getIntentsTests.forEach(test => {
@@ -205,83 +342,6 @@ describe('the augment class', function () {
       const state = new Augment(test.dataset);
 
       expect(state.getIntents()).to.deep.equal(test.expected);
-    });
-  });
-
-  const synonymsTests = [
-    {
-      given: `
-%[intent]
-  ~[greet?] welcome ~[back?]
-
-~[greet]
-  hi
-  hey
-
-~[back]
-  back
-`,
-      expected: [
-        'welcome',
-        'welcome back',
-        'hi welcome',
-        'hi welcome back',
-        'hey welcome',
-        'hey welcome back',
-      ],
-    },
-    {
-      given: `
-%[intent]
-  welcome ~[back?] ~[name?]
-
-~[name]
-  john
-  bob
-
-~[back]
-  back
-`,
-      expected: [
-        'welcome',
-        'welcome john',
-        'welcome bob',
-        'welcome back',
-        'welcome back john',
-        'welcome back bob',
-      ],
-    },
-    {
-      given: `
-%[intent]
-  welcome ~[back?] ~[name?] in town
-
-~[name]
-  john
-  bob
-
-~[back]
-  back
-`,
-      expected: [
-        'welcome in town',
-        'welcome john in town',
-        'welcome bob in town',
-        'welcome back in town',
-        'welcome back john in town',
-        'welcome back bob in town',
-      ],
-    },
-  ];
-
-  // This one is separated because there is so much case to test  
-  synonymsTests.forEach(test => {
-    it ('should handle synonym permutations', function () {
-      const augment = new Augment(parser.parse(test.given));
-      const intent = augment.getIntents().intent;
-      const sentence = intent.data.map(d => d.map(o => o.value).join(''));
-
-      expect(sentence).to.deep.equal(test.expected);
     });
   });
 
