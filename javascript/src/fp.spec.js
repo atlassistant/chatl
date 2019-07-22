@@ -112,6 +112,12 @@ describe('the fp module', function () {
       with: [1, 2, 3, 4],
       expected: [2, 4],
     },
+    {
+      it: 'should clone an object',
+      given: o => fp.clone(o),
+      with: { an: 'object', with: { nested: 'prop' } },
+      expected: { an: 'object', with: { nested: 'prop' } },
+    },
   ];
 
   tests.forEach(test => {
