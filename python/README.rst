@@ -110,4 +110,4 @@ Testing
 .. code-block:: bash
 
   $ pip install -e .[test]
-  $ python -m nose --with-doctest -v --with-coverage --cover-package=pychatl
+  $ python -m nose --with-doctest --with-coverage --cover-package=pychatl
