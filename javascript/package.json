@@ -12,8 +12,7 @@
   "author": "Julien LEICHER",
   "license": "MIT",
   "dependencies": {
-    "commander": "^2.17.1",
-    "lodash": "^4.17.11"
+    "commander": "^2.17.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",

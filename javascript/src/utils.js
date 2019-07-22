@@ -26,6 +26,40 @@ function permutate(remainingAttrs, currentVals = []) {
 }
 
 /**
+ * Recursively merge an object into another and concat arrays.
+ * @param {any} destination Where to merge
+ * @param {any} source Source object to merge
+ */
+function rmerge(destination, source) {
+  if (Array.isArray(source)) {
+    destination = destination.concat(source);
+  } else if (typeof source === 'object') {
+    Object.keys(source).map(key => {
+      if (typeof destination[key] !== 'undefined') {
+        destination[key] = rmerge(destination[key], source[key]);
+      } else {
+        destination[key] = source[key];
+      }
+    });
+  } else {
+    destination = source;
+  }
+
+  return destination;
+}
+
+/**
+ * Merge multiple source objects into the destination sharing the same structure.
+ * @param {Object} destination Destination object
+ * @param  {...Object} sources Source objects to merge
+ */
+function mergeObjects(destination, ...sources) {
+  return sources.reduce((result, source) => {
+    return rmerge(result, source);
+  }, destination);
+}
+
+/**
  * Fix JSON number serializing by always add a decimal when needed since
  * float does not really exists in Javascript and snips (for example) need numbers
  * to be valid floats.
@@ -65,4 +99,5 @@ module.exports = {
   isSynonym,
   isText,
   isEntity,
+  mergeObjects,
 };

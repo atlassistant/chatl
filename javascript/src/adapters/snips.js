@@ -1,4 +1,3 @@
-const _ = require ('lodash');
 const fp = require('../fp');
 const utils = require('../utils');
 const Augment = require('../augment');
@@ -78,7 +77,7 @@ module.exports = function generateSnipsDataset(chatl, options={}) {
     }))(intent.data),
   });
 
-  return _.merge({
+  return utils.mergeObjects({
     language: 'en',
     intents: fp.map(buildIntents)(augment.getIntents()),
     entities: fp.reduce(buildEntity)(chatl.entities),

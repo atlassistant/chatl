@@ -1,4 +1,3 @@
-const _ = require ('lodash');
 const fp = require('../fp');
 const utils = require('../utils');
 const Augment = require('../augment');
@@ -92,7 +91,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     return acc;
   };
 
-  return _.merge({
+  return utils.mergeObjects({
     rasa_nlu_data: {
       common_examples: fp.reduce(buildIntentExamples, [])(augment.getIntents()),
       regex_features: fp.reduce(buildRegexFeatures, [])(chatl.entities),

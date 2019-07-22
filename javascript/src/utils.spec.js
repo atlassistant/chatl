@@ -56,4 +56,52 @@ describe ('the utils module', function () {
     expect(utils.isText({ 'type': 'synonym' })).to.be.false
     expect(utils.isText({ 'type': 'text' })).to.be.true
   });
+
+  it ('should merge complex objects correctly', function () {
+    const a = {
+      one: 'value',
+      b: false,
+      arr: [1, 2],
+      with: {
+        nested: {
+          prop: 'here!',
+        },
+      },
+    };
+
+    const b = {
+      arr: [3],
+      b: false,
+      another: 'value',
+      with: {
+        nested: {
+          arr: [1, 2],
+        },
+      },
+    };
+
+    const c = {
+      arr: [4],
+      another: 'value overloaded',
+      b: true,
+      with: {
+        nested: {
+          arr: [3, 4, 5, 6],
+        },
+      },
+    };
+
+    expect(utils.mergeObjects(a, b, c)).to.deep.equal({
+      one: 'value',
+      another: 'value overloaded',
+      b: true,
+      arr: [1, 2, 3, 4],
+      with: {
+        nested: {
+          arr: [1, 2, 3, 4, 5, 6],
+          prop: 'here!',
+        },
+      },
+    });
+  });
 });
