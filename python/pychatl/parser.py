@@ -8,13 +8,14 @@ EOL = r'\\n|\\r\\n'
 indent = r'[ \\t]*'
 sentence = r'[^@^~^%^#^\\n^\\r\\n]+'
 
-element_name = r'[^]]+'
+element_name = r'[^]^?]+'
 
 entity_alias = "@[" element_name "]"
 synonym_alias = "~[" element_name "]"
 
 prop_key = r'[^=^\n^\r\n]*'
-prop_value = r'[^,^)^\n^\r\n]*'
+backticked_value = r'[^\r^\n^`]*'
+prop_value = "`" backticked_value "`" / r'[^,^)^\n^\r\n]*'
 prop = prop_key "=" prop_value indent r'[,]?' indent
 props = "(" prop+ ")"
 
@@ -22,7 +23,9 @@ entity_data = indent (synonym_alias / sentence) EOL?
 entity_definition = "@[" element_name "]" props? EOL
   entity_data*
 
-intent_data = indent (entity_alias / synonym_alias / sentence)+ EOL?
+optional = "?"
+intent_synonym = "~[" element_name optional? "]"
+intent_data = indent (entity_alias / intent_synonym / sentence)+ EOL?
 intent_definition = "%[" element_name "]" props? EOL
   intent_data*
 
@@ -30,7 +33,7 @@ synonym_data = indent sentence+ EOL?
 synonym_definition = "~[" element_name "]" props? EOL
   synonym_data*
 
-comment = "#" sentence? EOL?
+comment = "#" indent sentence? EOL?
 
 """, 'root', skipws=False)
 
@@ -45,7 +48,6 @@ def parse(input_string, prefix=''):
     dict: Parsed content
 
   """
-
   tree = parser.parse(input_string)
   visitor = ChatlVisitor(prefix)
 
@@ -67,7 +69,6 @@ def extract_variant(definition):
     ('room', None)
 
   """
-
   value, *variant = definition.split('#')
 
   return (value, variant[0] if variant else None)
@@ -88,6 +89,16 @@ class ChatlVisitor (PTNodeVisitor):
   def visit_synonym_alias(self, node, children):
     return { 'type': 'synonym', 'value': children.element_name[0] }
 
+  def visit_optional(self, node, children):
+    return True
+
+  def visit_intent_synonym(self, node, children):
+    return {
+      'type': 'synonym',
+      'value': children.element_name[0],
+      'optional': any(children.optional),
+    }
+
   def visit_entity_alias(self, node, children):
     value, variant = extract_variant(children.element_name[0])
 
@@ -104,6 +115,9 @@ class ChatlVisitor (PTNodeVisitor):
     return node.value
 
   def visit_prop_value(self, node, children):
+    return children.backticked_value[0] if children.backticked_value else node.value
+
+  def visit_backticked_value(self, node, children):
     return node.value
 
   def visit_prop(self, node, children):

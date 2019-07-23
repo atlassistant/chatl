@@ -92,18 +92,11 @@ def append(*v):
 
   """
   def cb(d):
-    # TODO may need optimization :/
     if isinstance(d, list):
-      r = []
-      r.extend(d)
-      r.extend(v)
-      return r
+      return d + list(itertools.chain(v))
     else:
-      r = {}
-      r.update(d)
-      for i in v:
-        r.update(i)
-      return r
+      r = d.copy()
+      return r.update(dict(itertools.chain(*(i.items() for i in v)))) or r
   return cb
 
 def instantiate(klass, *args):

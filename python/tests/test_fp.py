@@ -11,10 +11,10 @@ class SayHello:
 
 class TestFP:
   
-  def it_should_correclty_transform_data(self, it, given, data, expected):
+  def it_should_correctly_transform_data(self, it, given, data, expected):
     expect(given(data)).to.equal(expected)
 
-  def test_it_should_correclty_transform_data(self):
+  def test_it_should_correctly_transform_data(self):
     tests = [
       {
         'it': 'should provide a function which always returns the given value',
@@ -117,4 +117,4 @@ class TestFP:
     ]
 
     for test in tests:
-      yield self.it_should_correclty_transform_data, test['it'], test['given'], test['with'], test['expected']
+      yield self.it_should_correctly_transform_data, test['it'], test['given'], test['with'], test['expected']
