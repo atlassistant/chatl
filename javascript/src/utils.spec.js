@@ -91,7 +91,7 @@ describe ('the utils module', function () {
       },
     };
 
-    expect(utils.mergeObjects(a, b, c)).to.deep.equal({
+    expect(utils.merge(a, b, c)).to.deep.equal({
       one: 'value',
       another: 'value overloaded',
       b: true,
@@ -100,6 +100,171 @@ describe ('the utils module', function () {
         nested: {
           arr: [1, 2, 3, 4, 5, 6],
           prop: 'here!',
+        },
+      },
+    });
+  });
+
+  it ('should merge multiple datasets intelligently', function () {
+    const a = {
+      intents: {
+        get_forecast: {
+          props: { some: 'prop' },
+          data: [
+            [
+              { type: 'text', value: 'will it rain in ' },
+              { type: 'entity', value: 'city', variant: null },
+            ],
+          ],
+        }
+      },
+      entities: {
+        city: {
+          variants: {
+            cityVariant: [
+              { type: 'text', value: 'london' },
+              { type: 'synonym', value: 'new york' },
+            ],
+          },
+          data: [
+            { type: 'text', value: 'paris' },
+            { type: 'text', value: 'rouen' },
+            { type: 'synonym', value: 'new york' },
+          ],
+          props: { some: 'entity prop' },
+        },
+      },
+      synonyms: {
+        'new york': {
+          props: { syn: 'prop' },
+          data: [
+            { type: 'text', value: 'nyc' },
+          ],
+        },
+      },
+    };
+
+    const b = {
+      intents: {
+        get_forecast: {
+          props: { other: 'intent prop' },
+          data: [
+            [
+              { type: 'text', value: 'will it snow in ' },
+              { type: 'entity', value: 'city', variant: null },
+            ],
+          ],
+        },
+      },
+      entities: {
+        city: {
+          props: { another: 'prop' },
+          variants: {},
+          data: [
+            { type: 'text', value: 'new york' },
+            { type: 'text', value: 'metz' },
+            { type: 'text', value: 'caen' },
+            { type: 'text', value: 'paris' },
+          ],
+        },
+      },
+      synonyms: {},
+    };
+
+    const c = {
+      intents: {
+        lights_on: {
+          props: {},
+          data: [ [ { type: 'text', value: 'turn the lights on' } ] ],
+        },
+      },
+      entities: {
+        city: {
+          props: {},
+          data: [],
+          variants: {
+            cityElsewhere: [ { type: 'text', value: 'amsterdam' } ],
+            cityVariant: [ { type: 'text', value: 'sydney' } ],
+          },
+        },
+        room: {
+          props: {},
+          data: [],
+          variants: {},
+        },
+      },
+      synonyms: {
+        basement: {
+          props: {},
+          data: [ { type: 'text', value: 'cellar' } ],
+        },
+        'new york': {
+          props: { another: 'prop' },
+          data: [
+            { type: 'text', value: 'ny' },
+            { type: 'text', value: 'nyc' },
+          ],
+        },
+      },
+    };
+    
+    expect(utils.merge(a, b, c)).to.deep.equal({
+      intents: {
+        get_forecast: {
+          props: { some: 'prop', other: 'intent prop' },
+          data: [
+            [
+              { type: 'text', value: 'will it rain in ' },
+              { type: 'entity', value: 'city', variant: null },
+            ],
+            [
+              { type: 'text', value: 'will it snow in ' },
+              { type: 'entity', value: 'city', variant: null },
+            ],
+          ],
+        },
+        lights_on: {
+          props: {},
+          data: [ [ { type: 'text', value: 'turn the lights on' } ] ],
+        },
+      },
+      entities: {
+        city: {
+          variants: {
+            cityElsewhere: [ { type: 'text', value: 'amsterdam' } ],
+            cityVariant: [
+              { type: 'text', value: 'london' },
+              { type: 'synonym', value: 'new york' },
+              { type: 'text', value: 'sydney' },
+            ],
+          },
+          data: [
+            { type: 'text', value: 'paris' },
+            { type: 'text', value: 'rouen' },
+            { type: 'synonym', value: 'new york' },
+            { type: 'text', value: 'new york' },
+            { type: 'text', value: 'metz' },
+            { type: 'text', value: 'caen' },
+          ],
+          props: { some: 'entity prop', another: 'prop' },
+        },
+        room: {
+          props: {},
+          data: [],
+          variants: {},
+        },
+      },
+      synonyms: {
+        'new york': {
+          props: { syn: 'prop', another: 'prop' },
+          data: [
+            { type: 'text', value: 'nyc' },
+            { type: 'text', value: 'ny' },
+          ],
+        },
+        basement: {
+          props: {},
+          data: [ { type: 'text', value: 'cellar' } ],
         },
       },
     });

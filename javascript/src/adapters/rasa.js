@@ -91,7 +91,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     return acc;
   };
 
-  return utils.mergeObjects({
+  return utils.merge({
     rasa_nlu_data: {
       common_examples: fp.reduce(buildIntentExamples, [])(augment.getIntents()),
       regex_features: fp.reduce(buildRegexFeatures, [])(chatl.entities),

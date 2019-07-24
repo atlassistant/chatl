@@ -77,7 +77,7 @@ module.exports = function generateSnipsDataset(chatl, options={}) {
     }))(intent.data),
   });
 
-  return utils.mergeObjects({
+  return utils.merge({
     language: 'en',
     intents: fp.map(buildIntents)(augment.getIntents()),
     entities: fp.reduce(buildEntity)(chatl.entities),
