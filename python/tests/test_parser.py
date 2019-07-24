@@ -288,84 +288,84 @@ class TestParser:
   """,
         'expected': {
           'intents': {
-            "my_intent"'': {
-              "data"'': [
+            'my_intent': {
+              'data': [
                 [
-                  { "type"'': "synonym", "value"'': "greet", 'optional': False },
-                  { "type"'': "text", "value"'': " some training data " },
-                  { "type"'': "entity", "value"'': "date", "variant"'': None },
+                  { 'type': "synonym", 'value': "greet", 'optional': False },
+                  { 'type': "text", 'value': " some training data " },
+                  { 'type': "entity", 'value': "date", 'variant': None },
                 ],
                 [
-                  { "type"'': "text", "value"'': "another training data that uses an " },
-                  { "type"'': "entity", "value"'': "entity", "variant"'': None },
-                  { "type"'': "text", "value"'': " at " },
-                  { "type"'': "entity", "value"'': "date", "variant"'': "with_variant" },
+                  { 'type': "text", 'value': "another training data that uses an " },
+                  { 'type': "entity", 'value': "entity", 'variant': None },
+                  { 'type': "text", 'value': " at " },
+                  { 'type': "entity", 'value': "date", 'variant': "with_variant" },
                 ],
               ],
-              "props"'': {},
+              'props': {},
             },      
           },
           'entities': {
-            "date"'': {
-              "data"'': [
-                { "type"'': "text", "value"'': "tomorrow" },
-                { "type"'': "text", "value"'': "today" },
+            'date': {
+              'data': [
+                { 'type': "text", 'value': "tomorrow" },
+                { 'type': "text", 'value': "today" },
               ],
-              "props"'': {
-                "type"'': "snips/datetime"
+              'props': {
+                'type': "snips/datetime"
               },
-              "variants"'': {
-                "with_variant"'': [
-                  { "type"'': "text", "value"'': "the end of the day" },
-                  { "type"'': "text", "value"'': "nine o clock" },
-                  { "type"'': "text", "value"'': "twenty past five" },
+              'variants': {
+                'with_variant': [
+                  { 'type': "text", 'value': "the end of the day" },
+                  { 'type': "text", 'value': "nine o clock" },
+                  { 'type': "text", 'value': "twenty past five" },
                 ],
               },
             },
-            "entity"'': {
-              "data"'': [
-                { "type"'': "text", "value"'': "some value" },
-                { "type"'': "text", "value"'': "other value" },
-                { "type"'': "synonym", "value"'': "a synonym" },
+            'entity': {
+              'data': [
+                { 'type': "text", 'value': "some value" },
+                { 'type': "text", 'value': "other value" },
+                { 'type': "synonym", 'value': "a synonym" },
               ],
-              "props"'': {},
-              "variants"'': {},
+              'props': {},
+              'variants': {},
             },      
           },
           'synonyms': {
-            "a synonym"'': {
-              "data"'': [
-                { "type"'': "text", "value"'': "possible synonym" },
-                { "type"'': "text", "value"'': "another one" },
+            'a synonym': {
+              'data': [
+                { 'type': "text", 'value': "possible synonym" },
+                { 'type': "text", 'value': "another one" },
               ],
-              "props"'': {},
+              'props': {},
             },
-            "greet"'': {
-              "data"'': [
-                { "type"'': "text", "value"'': "hi" },
-                { "type"'': "text", "value"'': "hello" },
+            'greet': {
+              'data': [
+                { 'type': "text", 'value': "hi" },
+                { 'type': "text", 'value': "hello" },
               ],
-              "props"'': {},
+              'props': {},
             },      
           },
           'comments': [
-            { "type"'': "comment", "value"'': "chatl is really easy to understand." },
-            { "type"'': "comment", "value"'': "" },
-            { "type"'': "comment", "value"'': "You can 'defines':" },
-            { "type"'': "comment", "value"'': "- Intents" },
-            { "type"'': "comment", "value"'': "- Entities (with or without variants)" },
-            { "type"'': "comment", "value"'': "- Synonyms" },
-            { "type"'': "comment", "value"'': "- Comments (only at the top level)" },
-            { "type"'': "comment", "value"'': "Inside an intent, you got training data." },
-            { "type"'': "comment", "value"'': "Training data can refer to one or more entities and/or synonyms, they will be used" },
-            { "type"'': "comment", "value"'': "by generators to generate all possible permutations and training samples." },
-            { "type"'': "comment", "value"'': "Entities contains available samples and could refer to a synonym." },
-            { "type"'': "comment", "value"'': "Synonyms contains only raw values" },
-            { "type"'': "comment", "value"'': "Entities and intents can define arbitrary properties that will be made available" },
-            { "type"'': "comment", "value"'': "to generators." },
-            { "type"'': "comment", "value"'': "For snips, type and extensible are used for example." },
-            { "type"'': "comment", "value"'': "Variants is used only to generate training sample with specific values that should" },
-            { "type"'': "comment", "value"'': "maps to the same entity name, here date. Props will be merged with the root entity." },
+            { 'type': "comment", 'value': "chatl is really easy to understand." },
+            { 'type': "comment", 'value': "" },
+            { 'type': "comment", 'value': "You can 'defines':" },
+            { 'type': "comment", 'value': "- Intents" },
+            { 'type': "comment", 'value': "- Entities (with or without variants)" },
+            { 'type': "comment", 'value': "- Synonyms" },
+            { 'type': "comment", 'value': "- Comments (only at the top level)" },
+            { 'type': "comment", 'value': "Inside an intent, you got training data." },
+            { 'type': "comment", 'value': "Training data can refer to one or more entities and/or synonyms, they will be used" },
+            { 'type': "comment", 'value': "by generators to generate all possible permutations and training samples." },
+            { 'type': "comment", 'value': "Entities contains available samples and could refer to a synonym." },
+            { 'type': "comment", 'value': "Synonyms contains only raw values" },
+            { 'type': "comment", 'value': "Entities and intents can define arbitrary properties that will be made available" },
+            { 'type': "comment", 'value': "to generators." },
+            { 'type': "comment", 'value': "For snips, type and extensible are used for example." },
+            { 'type': "comment", 'value': "Variants is used only to generate training sample with specific values that should" },
+            { 'type': "comment", 'value': "maps to the same entity name, here date. Props will be merged with the root entity." },
           ],
         },
       },
