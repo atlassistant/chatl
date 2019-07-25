@@ -4,25 +4,30 @@ const pkg = require('./../package.json');
 const fs = require('fs');
 const program = require('commander');
 const chatl = require('./index');
+const utils = require('./utils');
 
 program
   .version(pkg.version)
-  .arguments('<trainingFile> [optionsFile]')
+  .arguments('<files...>')
   .option('-a, --adapter <name>', 'Name of the adapter to use')
-  .action((trainingFile, optionsFile) => {
-    const inputData = fs.readFileSync(trainingFile, 'utf8');
-    let options = null;
+  .option('-m --merge <mergeFile>', 'Options file to merge with the final result')
+  .action((files) => {
+    let options = {};
 
-    if (optionsFile) {
-      options = fs.readFileSync(optionsFile, 'utf8');
+    if (program.merge) {
+      options = fs.readFileSync(program.merge, 'utf8');
     }
 
-    let result = chatl.parse(inputData);
+    let result = files.reduce((r, file) => {
+      const input = fs.readFileSync(file, 'utf8');
+
+      return chatl.merge(r, chatl.parse(input));
+    }, {});
 
     if (program.adapter) {
       result = chatl.adapters[program.adapter](result, options);
     }
 
-    console.log(chatl.toJSON(result));
+    console.log(utils.toJSON(result));
   })
   .parse(process.argv);
