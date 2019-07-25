@@ -56,7 +56,7 @@ For now, only the [snips adapter](https://github.com/snipsco/snips-nlu) and [ras
 | type (1)       | ✔️     | ✔️   |
 | extensible (2) | ✔️     | ❌   |
 | strictness (3) | ✔️     | ❌   |
-| regex (4)      | ️️❌️     | ✔   |
+| regex (4)      | ️️❌️     | ✔️   |
 
 1. Specific type of the entity to use (such as datetime, temperature and so on). For `snips`, if the given entity name could not be found in the chatl declaration, it will assume its a builtin one (supported types are [listed here](https://github.com/snipsco/snips-nlu-ontology#supported-builtin-entities) without the `snips/` prefix). For `rasa`, it will use the referenced type as the slot name.
 2. Are values outside of training samples allowed?
