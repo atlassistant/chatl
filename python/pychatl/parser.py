@@ -4,18 +4,19 @@ from arpeggio.cleanpeg import ParserPEG, visit_parse_tree
 parser = ParserPEG("""
 root = (intent_definition / entity_definition / synonym_definition / comment / EOL)+
 
-EOL = r'\\n|\\r\\n'
+EOL = r'\\n|\\r'
 indent = r'[ \\t]*'
-sentence = r'[^@^~^%^#^\\n^\\r\\n]+'
+sentence = r'[^@^~^%^#^\\n^\\r]+'
+text = r'[^\\n^\\r]*'
 
 element_name = r'[^]^?]+'
 
 entity_alias = "@[" element_name "]"
 synonym_alias = "~[" element_name "]"
 
-prop_key = r'[^=^\n^\r\n]*'
-backticked_value = r'[^\r^\n^`]*'
-prop_value = "`" backticked_value "`" / r'[^,^)^\n^\r\n]*'
+prop_key = r'[^=^\\n^\\r]*'
+backticked_value = r'[^\\n^\\r^`]*'
+prop_value = "`" backticked_value "`" / r'[^,^)^\\n^\\r]*'
 prop = prop_key "=" prop_value indent r'[,]?' indent
 props = "(" prop+ ")"
 
@@ -33,7 +34,7 @@ synonym_data = indent sentence+ EOL?
 synonym_definition = "~[" element_name "]" props? EOL
   synonym_data*
 
-comment = "#" indent sentence? EOL?
+comment = "#" indent text? EOL?
 
 """, 'root', skipws=False)
 
@@ -85,6 +86,9 @@ class ChatlVisitor (PTNodeVisitor):
 
   def visit_sentence(self, node, children):
     return { 'type': 'text', 'value': node.value }
+
+  def visit_text(self, node, children):
+    return node.value
 
   def visit_synonym_alias(self, node, children):
     return { 'type': 'synonym', 'value': children.element_name[0] }
@@ -163,7 +167,7 @@ class ChatlVisitor (PTNodeVisitor):
   def visit_comment(self, node, children):
     return { 
       'type': 'comment',
-      'value': children.sentence[0]['value'] if children.sentence else '',
+      'value': children.text[0] if children.text else '',
     }
 
   def visit_root(self, node, children):

@@ -243,129 +243,125 @@ class TestParser:
       {
         'it': 'should parse comments',
         'dsl': """
-# chatl is really easy to understand.
-#
-# You can 'defines':
-#   - Intents
-#   - Entities (with or without variants)
-#   - Synonyms
-#   - Comments (only at the top level)
-# Inside an intent, you got training data.
-# Training data can refer to one or more entities and/or synonyms, they will be used
-# by generators to generate all possible permutations and training samples.
-%[my_intent]
-  ~[greet] some training data @[date]
-  another training data that uses an @[entity] at @[date#with_variant]
+# The chatl syntax is easy to understand.
+# With the `%` symbol, you define intents. Intent data can contains entity references
+# with the `@` and optional (using `?` as a suffix) synonyms with `~`.
+# Synonyms here will be used to generate variations of the given sentence.
+%[get_weather]
+  ~[greet?] what's the weather like in @[city] @[date]
+  ~[greet] will it rain in @[city] at @[date#hour]
 
+# With the `~`, you define synonyms used in intents and entities definitions.
 ~[greet]
   hi
-  hello
+  hey
 
-# Entities contains available samples and could refer to a synonym.
-@[entity]
-  some value
-  other value
-  ~[a synonym]
+~[new york]
+  ny
+  nyc
+  the big apple
 
-# Synonyms contains only raw values
-~[a synonym]
-  possible synonym
-  another one
+# With the `@`, you define entities.
+@[city]
+  paris
+  rouen
+  ~[new york]
 
-# Entities and intents can define arbitrary properties that will be made available
-# to generators.
-# For snips, type and extensible are used for example.
-@[date](type=snips/datetime)
+# You can define properties on intents, entities and synonyms.
+# Depending on the dataset you want to generate, some props may be used
+# by the adapter to convey specific meanings.
+@[date](type=datetime, another=`property backticked`)
   tomorrow
-  today
+  this weekend
+  this evening
 
-# Variants is used only to generate training sample with specific values that should
-# maps to the same entity name, here date. Props will be merged with the root entity.
-@[date#with_variant]
-  the end of the day
-  nine o clock
-  twenty past five
+# You can define entity variants with the `#` symbol. Variants will be merge with
+# the entity it references but is used to provide different values when
+# generating intent sentences.
+@[date#hour]
+  ten o'clock
+  noon
   """,
         'expected': {
-          'intents': {
-            'my_intent': {
-              'data': [
+          "intents": {
+            "get_weather": {
+              "props": {},
+              "data": [
                 [
-                  { 'type': "synonym", 'value': "greet", 'optional': False },
-                  { 'type': "text", 'value': " some training data " },
-                  { 'type': "entity", 'value': "date", 'variant': None },
+                  { "type": "synonym", "value": "greet", "optional": True },
+                  { "type": "text", "value": " what's the weather like in " },
+                  { "type": "entity", "value": "city", "variant": None },
+                  { "type": "text", "value": " " },
+                  { "type": "entity", "value": "date", "variant": None },
                 ],
                 [
-                  { 'type': "text", 'value': "another training data that uses an " },
-                  { 'type': "entity", 'value': "entity", 'variant': None },
-                  { 'type': "text", 'value': " at " },
-                  { 'type': "entity", 'value': "date", 'variant': "with_variant" },
+                  { "type": "synonym", "value": "greet", "optional": False },
+                  { "type": "text", "value": " will it rain in " },
+                  { "type": "entity", "value": "city", "variant": None },
+                  { "type": "text", "value": " at " },
+                  { "type": "entity", "value": "date", "variant": "hour" },
                 ],
               ],
-              'props': {},
-            },      
+            },
           },
-          'entities': {
-            'date': {
-              'data': [
-                { 'type': "text", 'value': "tomorrow" },
-                { 'type': "text", 'value': "today" },
+          "entities": {
+            "city": {
+              "variants": {},
+              "props": {},
+              "data": [
+                { "type": "text", "value": "paris" },
+                { "type": "text", "value": "rouen" },
+                { "type": "synonym", "value": "new york" },
               ],
-              'props': {
-                'type': "snips/datetime"
-              },
-              'variants': {
-                'with_variant': [
-                  { 'type': "text", 'value': "the end of the day" },
-                  { 'type': "text", 'value': "nine o clock" },
-                  { 'type': "text", 'value': "twenty past five" },
+            },
+            "date": {
+              "variants": {
+                "hour": [
+                  { "type": "text", "value": "ten o'clock" },
+                  { "type": "text", "value": "noon" },
                 ],
               },
+              "props": {
+                "type": "datetime",
+                "another": "property backticked"
+              },
+              "data": [
+                { "type": "text", "value": "tomorrow" },
+                { "type": "text", "value": "this weekend" },
+                { "type": "text", "value": "this evening" },
+              ],
             },
-            'entity': {
-              'data': [
-                { 'type': "text", 'value': "some value" },
-                { 'type': "text", 'value': "other value" },
-                { 'type': "synonym", 'value': "a synonym" },
-              ],
-              'props': {},
-              'variants': {},
-            },      
           },
-          'synonyms': {
-            'a synonym': {
-              'data': [
-                { 'type': "text", 'value': "possible synonym" },
-                { 'type': "text", 'value': "another one" },
+          "synonyms": {
+            "greet": {
+              "props": {},
+              "data": [
+                { "type": "text", "value": "hi" },
+                { "type": "text", "value": "hey" },
               ],
-              'props': {},
             },
-            'greet': {
-              'data': [
-                { 'type': "text", 'value': "hi" },
-                { 'type': "text", 'value': "hello" },
+            "new york": {
+              "props": {},
+              "data": [
+                { "type": "text", "value": "ny" },
+                { "type": "text", "value": "nyc" },
+                { "type": "text", "value": "the big apple" },
               ],
-              'props': {},
-            },      
+            },
           },
-          'comments': [
-            { 'type': "comment", 'value': "chatl is really easy to understand." },
-            { 'type': "comment", 'value': "" },
-            { 'type': "comment", 'value': "You can 'defines':" },
-            { 'type': "comment", 'value': "- Intents" },
-            { 'type': "comment", 'value': "- Entities (with or without variants)" },
-            { 'type': "comment", 'value': "- Synonyms" },
-            { 'type': "comment", 'value': "- Comments (only at the top level)" },
-            { 'type': "comment", 'value': "Inside an intent, you got training data." },
-            { 'type': "comment", 'value': "Training data can refer to one or more entities and/or synonyms, they will be used" },
-            { 'type': "comment", 'value': "by generators to generate all possible permutations and training samples." },
-            { 'type': "comment", 'value': "Entities contains available samples and could refer to a synonym." },
-            { 'type': "comment", 'value': "Synonyms contains only raw values" },
-            { 'type': "comment", 'value': "Entities and intents can define arbitrary properties that will be made available" },
-            { 'type': "comment", 'value': "to generators." },
-            { 'type': "comment", 'value': "For snips, type and extensible are used for example." },
-            { 'type': "comment", 'value': "Variants is used only to generate training sample with specific values that should" },
-            { 'type': "comment", 'value': "maps to the same entity name, here date. Props will be merged with the root entity." },
+          "comments": [
+            { "type": "comment", "value": "The chatl syntax is easy to understand." },
+            { "type": "comment", "value": "With the `%` symbol, you define intents. Intent data can contains entity references" },
+            { "type": "comment", "value": "with the `@` and optional (using `?` as a suffix) synonyms with `~`." },
+            { "type": "comment", "value": "Synonyms here will be used to generate variations of the given sentence." },
+            { "type": "comment", "value": "With the `~`, you define synonyms used in intents and entities definitions." },
+            { "type": "comment", "value": "With the `@`, you define entities." },
+            { "type": "comment", "value": "You can define properties on intents, entities and synonyms." },
+            { "type": "comment", "value": "Depending on the dataset you want to generate, some props may be used" },
+            { "type": "comment", "value": "by the adapter to convey specific meanings." },
+            { "type": "comment", "value": "You can define entity variants with the `#` symbol. Variants will be merge with" },
+            { "type": "comment", "value": "the entity it references but is used to provide different values when" },
+            { "type": "comment", "value": "generating intent sentences." },
           ],
         },
       },
