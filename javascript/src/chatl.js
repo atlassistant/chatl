@@ -15,7 +15,7 @@ program
     let options = {};
 
     if (program.merge) {
-      options = fs.readFileSync(program.merge, 'utf8');
+      options = JSON.parse(fs.readFileSync(program.merge, 'utf8'));
     }
 
     let result = files.reduce((r, file) => {
