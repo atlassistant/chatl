@@ -1,5 +1,5 @@
 from itertools import product
-from ..utils import deep_update
+from ..utils import merge
 import logging
 
 SNIPS_PREFIX = 'snips/'
@@ -167,4 +167,4 @@ def snips(dataset, **options):
       'utterances': utterances,
     }
 
-  return deep_update(training_dataset, options)
+  return merge(training_dataset, options)

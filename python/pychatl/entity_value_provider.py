@@ -22,13 +22,18 @@ class EntityValueProvider:
     });
 
     data = fp.append(fp.map(fp.map(fp.prop('value')))(variants))({
-      '_': fp.map(fp.prop('value'))(entity_data.get('data')),
+      '_': fp.map(fp.prop('value'))(entity_data.get('data', [])),
     });
     
     self._values = fp.flatten(data);
     self.data = fp.map(lambda d: 
       fp.reduce(lambda pp, cc: fp.append(cc, *(synonyms.get(cc, [])))(pp))(d)
     )(data) if synonyms else data
+
+  def __eq__(self, other):
+    if isinstance(other, self.__class__):
+      return self._values == other._values and self.data == other.data and self.indices == other.indices
+    return False
 
   def next(self, variant=None):
     """Retrieve the next entity value.

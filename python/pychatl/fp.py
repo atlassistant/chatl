@@ -39,7 +39,7 @@ def clone(o):
     o (dict): Dictionary to clone
   
   """
-  return {}.update(o) or o
+  return o.copy()
 
 def always(value):
   """Always returns the given value, used mostly for initialisation.

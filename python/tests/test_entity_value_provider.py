@@ -3,6 +3,20 @@ from pychatl.entity_value_provider import EntityValueProvider
 
 class TestEntityValueProvider:
 
+  def test_it_should_correctly_compare_with_other_instances(self):
+    d = {
+      'variants': {},
+      'data': [
+        { 'type': 'text', 'value': 'paris' },
+        { 'type': 'synonym', 'value': 'new york' },
+        { 'type': 'text', 'value': 'london' },
+      ],
+    }
+    expect(EntityValueProvider(d)).to_not.equal(5)
+    expect(EntityValueProvider(d)).to_not.equal(EntityValueProvider({}))
+    expect(EntityValueProvider(d)).to_not.equal(EntityValueProvider(d, { 'new york': ['ny', 'nyc'] }))
+    expect(EntityValueProvider(d)).to.equal(EntityValueProvider(d))
+
   def it_should_correctly_provide_values(self, it, entity, variant, synonyms, expected):
     provider = EntityValueProvider(entity, synonyms);
 
