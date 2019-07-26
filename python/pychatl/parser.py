@@ -38,19 +38,18 @@ comment = "#" indent text? EOL?
 
 """, 'root', skipws=False)
 
-def parse(input_string, prefix=''):
+def parse(input_string):
   """Parses the given DSL string and returns parsed results.
 
   Args:
     input_string (str): DSL string
-    prefix (str): Optional prefix to add to every element name, useful to namespace things
 
   Returns:
     dict: Parsed content
 
   """
   tree = parser.parse(input_string)
-  visitor = ChatlVisitor(prefix)
+  visitor = ChatlVisitor()
 
   return visit_parse_tree(tree, visitor)
 
@@ -79,10 +78,8 @@ class ChatlVisitor (PTNodeVisitor):
   usable by adapters.
   """
 
-  def __init__(self, prefix=''):
+  def __init__(self):
     super().__init__(defaults=False)
-
-    self.prefix = prefix
 
   def visit_sentence(self, node, children):
     return { 'type': 'text', 'value': node.value }
@@ -113,7 +110,7 @@ class ChatlVisitor (PTNodeVisitor):
     }
 
   def visit_element_name(self, node, children):
-    return self.prefix + node.value
+    return node.value
 
   def visit_prop_key(self, node, children):
     return node.value
