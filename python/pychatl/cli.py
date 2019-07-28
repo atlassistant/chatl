@@ -2,7 +2,7 @@ import argparse, json, sys
 from pychatl import parse
 from pychatl.utils import merge
 import pychatl.postprocess as postprocess
-from .version import __version__
+from pychatl.version import __version__
 
 def main(): # pragma: no cover
   parser = argparse.ArgumentParser(description='Generates training dataset from a simple DSL.')

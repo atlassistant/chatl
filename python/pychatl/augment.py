@@ -23,7 +23,7 @@ class Augment:
     # Let's flatten some stuff right now
     self.synonyms_values = fp.map(fp.pipe(fp.prop('data'), fp.map(fp.prop('value'))))(self.synonyms)
     self.entities_values = fp.map(fp.instantiate(EntityValueProvider, 
-        self.synonyms_values if use_synonyms_in_entity_value_provider else {}))(self.entities);
+        self.synonyms_values if use_synonyms_in_entity_value_provider else {}))(self.entities)
 
   def get_entity(self, name):
     """Retrieve an entity value provider from an entity name.
@@ -35,7 +35,7 @@ class Augment:
       EntityValueProvider: The EntityValueProvider for this entity
 
     """
-    provider = self.entities_values.get(name);
+    provider = self.entities_values.get(name)
 
     if not provider:
       raise Exception(f'Could not find an entity with the name: {name}')
@@ -70,11 +70,11 @@ class Augment:
     # second step which try to eliminate them.
 
     def process_sentence_data(acc, sentence):
-      sentence_synonyms = fp.filter(is_synonym)(sentence);
+      sentence_synonyms = fp.filter(is_synonym)(sentence)
 
       # No synonyms, just returns now
       if not sentence_synonyms:
-        return fp.append(sentence)(acc);
+        return fp.append(sentence)(acc)
 
       # Get all synonyms values to generate permutations
       # For optional synonyms, add an empty entry.
@@ -88,7 +88,7 @@ class Augment:
 
         def reduce_sentence(p, c):
           if not is_synonym(c):
-            return fp.append(fp.clone(c))(p);
+            return fp.append(fp.clone(c))(p)
           
           nonlocal idx
 
@@ -104,7 +104,7 @@ class Augment:
 
           return p
 
-        parts = fp.reduce(reduce_sentence)(sentence);
+        parts = fp.reduce(reduce_sentence)(sentence)
         part_idx = 0
 
         def reduce_whitespaces_in_part(f, part):
@@ -114,11 +114,11 @@ class Augment:
 
           # First element
           if part_idx == 0:
-            p['value'] = p['value'].lstrip();
+            p['value'] = p['value'].lstrip()
 
           # Last element or the following one starts with a space
           if part_idx == (len(parts) - 1) or parts[part_idx + 1]['value'][0] == ' ':
-            p['value'] = p['value'].rstrip();
+            p['value'] = p['value'].rstrip()
 
           part_idx += 1
 
@@ -128,7 +128,7 @@ class Augment:
           return fp.append(p)(f)
 
         # Remove uneeded whitespaces introduced by optional synonyms
-        stripped_parts = fp.reduce(reduce_whitespaces_in_part)(parts);
+        stripped_parts = fp.reduce(reduce_whitespaces_in_part)(parts)
 
         return stripped_parts
 
@@ -139,4 +139,4 @@ class Augment:
         'data': fp.reduce(process_sentence_data)(intent_data.get('data', [])),
       })(intent_data)
 
-    return fp.map(process_intent_data)(self.intents);
+    return fp.map(process_intent_data)(self.intents)
