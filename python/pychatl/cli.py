@@ -1,7 +1,7 @@
 import argparse, json, sys
 from pychatl import parse
 from pychatl.utils import merge
-import pychatl.postprocess as postprocess
+import pychatl.adapters as adapters
 from pychatl.version import __version__
 
 def main(): # pragma: no cover
@@ -26,6 +26,6 @@ def main(): # pragma: no cover
     options = {}
 
   if args.adapter:
-    data = getattr(postprocess, args.adapter)(data, **options)
+    data = getattr(adapters, args.adapter)(data, **options)
 
   print (json.dumps(data, indent=2 if args.pretty else None))
