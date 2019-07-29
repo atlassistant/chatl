@@ -1,6 +1,6 @@
 from sure import expect
 from pychatl import parse
-from pychatl.adapters import rasa
+from pychatl.adapters.rasa import rasa
 
 class TestRasa:
 

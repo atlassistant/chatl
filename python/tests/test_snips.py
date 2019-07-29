@@ -1,6 +1,6 @@
 from sure import expect
 from pychatl import parse
-from pychatl.adapters import snips
+from pychatl.adapters.snips import snips
 
 class TestSnips:
 
