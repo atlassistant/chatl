@@ -12,7 +12,7 @@ def map(func):
     if isinstance(d, list):
       return [ func(v) for v in d]
     else:
-      return { k: func(v) for k, v in d.items() }
+      return { k: func(v) for k, v in sorted(d.items(), key=lambda x: x[0]) }
   return cb
 
 def reduce(func, start=None):
