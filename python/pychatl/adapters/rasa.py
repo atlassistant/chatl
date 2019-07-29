@@ -65,16 +65,19 @@ def rasa(chatl, **options):
 
     return fp.append(*fp.map(build_sentence)(intent.get('data')))(acc)
 
-  def build_entity_synonyms(acc, entity, _):
-    synonyms = fp.pipe(fp.filter(utils.is_synonym), fp.map(fp.prop('value')))(entity.get('data'))
+  def build_entity_synonyms(acc, _, name):
+    def reduce_entity(p, c):
+      synonyms = augment.get_synonyms(c)
 
-    if len(synonyms) == 0:
-      return acc
+      if not synonyms:
+        return p
 
-    return fp.append(*fp.map(lambda c: {
-      'value': c,
-      'synonyms': augment.get_synonyms(c),
-    })(synonyms))(acc)
+      return fp.append({
+        'value': c,
+        'synonyms': synonyms,
+      })(p)
+
+    return fp.append(*fp.reduce(reduce_entity)(augment.get_entity(name).all()))(acc)
 
   def build_regex_features(acc, _, name):
     pattern = get_regex_prop(name)

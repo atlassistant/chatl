@@ -200,11 +200,17 @@ class TestSnips:
 @[city#variant]
   one variant
   another one
+  ~[variant synonym]
 
 ~[new york]
   nyc
   the big apple
-  """,
+
+~[variant synonym]
+  one
+  two
+
+""",
         'options': {},
         'expected': {
           'language': 'en',
@@ -217,6 +223,7 @@ class TestSnips:
                 { 'value': 'new york', 'synonyms': ['nyc', 'the big apple'] },
                 { 'value': 'one variant', 'synonyms': [] },
                 { 'value': 'another one', 'synonyms': [] },
+                { 'value': 'variant synonym', 'synonyms': ['one', 'two'] },
               ],
               'automatically_extensible': True,
               'matching_strictness': 1,

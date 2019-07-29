@@ -146,10 +146,15 @@ describe('the rasa adapter', function () {
 @[city#variant]
   one variant
   another one
+  ~[variant synonym]
 
 ~[new york]
   nyc
   the big apple
+
+~[variant synonym]
+  one
+  two
 `,
       options: {},
       expected: {
@@ -159,13 +164,17 @@ describe('the rasa adapter', function () {
           lookup_tables: [
             {
               name: 'city',
-              elements: ['paris', 'rouen', 'new york', 'one variant', 'another one'],
+              elements: ['paris', 'rouen', 'new york', 'one variant', 'another one', 'variant synonym'],
             },
           ],
           entity_synonyms: [
             {
               value: 'new york',
               synonyms: ['nyc', 'the big apple'],
+            },
+            {
+              value: 'variant synonym',
+              synonyms: ['one', 'two'],
             },
           ],
         }

@@ -65,17 +65,19 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
     })(intent.data))(acc);
   };
 
-  const buildEntitySynonyms = (acc, entity, _) => {
-    const synonyms = fp.pipe(fp.filter(utils.isSynonym), fp.map(fp.prop('value')))(entity.data);
+  const buildEntitySynonyms = (acc, _, name) => {
+    return fp.append(fp.reduce((p, c) => {
+      const synonyms = augment.getSynonyms(c);
 
-    if (synonyms.length === 0) {
-      return acc;
-    }
+      if (synonyms.length === 0) {
+        return p;
+      }
 
-    return fp.append(fp.map(c => ({
-      value: c,
-      synonyms: augment.getSynonyms(c),
-    }))(synonyms))(acc);
+      return fp.append({
+        value: c,
+        synonyms,
+      })(p);
+    })(augment.getEntity(name).all()))(acc);
   };
 
   const buildRegexFeatures = (acc, _, name) => {
