@@ -85,7 +85,7 @@ def flatten(d):
   return functools.reduce(lambda p, c: p + c, seq, [])
 
 def append(*v):
-  """Mostly used with reduce, append one or more elements to an array or an object.
+  """Mostly used with reduce, append one or more elements to an array or an object by mutating it.
 
   Args:
     v (list): Values to append
@@ -93,10 +93,9 @@ def append(*v):
   """
   def cb(d):
     if isinstance(d, list):
-      return d + list(itertools.chain(v))
+      return d.extend(list(itertools.chain(v))) or d
     else:
-      r = d.copy()
-      return r.update(dict(itertools.chain(*(i.items() for i in v)))) or r
+      return d.update(dict(itertools.chain(*(i.items() for i in v)))) or d
   return cb
 
 def instantiate(klass, *args):
