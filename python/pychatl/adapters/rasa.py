@@ -10,7 +10,7 @@ def rasa(chatl, **options):
   def get_real_entity(name):
     type = augment.entities.get(name, {}).get('props', {}).get('type')
 
-    if type and augment.entities.get(type):
+    if type and type in augment.entities:
       return type
 
     return name
@@ -63,7 +63,7 @@ def rasa(chatl, **options):
         'entities': entities,
       }
 
-    return fp.append(*fp.map(build_sentence)(intent.get('data')))(acc)
+    return fp.append(*fp.map(build_sentence)(intent.get('data', [])))(acc)
 
   def build_entity_synonyms(acc, _, name):
     def reduce_entity(p, c):
