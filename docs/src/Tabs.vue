@@ -35,6 +35,7 @@ export default {
       }
     },
     selectTab(tab) {
+      this.$emit('tab-changed');
       this.current = tab;
 
       this.tabs.forEach(o => o.isActive = o === this.current);

@@ -1,9 +1,10 @@
 const parse = require('./parser').parse;
 const adapters = require('./adapters');
-const merge = require('./utils').merge;
+const utils = require('./utils');
 
 module.exports = {
   adapters,
   parse,
-  merge,
+  utils,
+  merge: utils.merge,
 };
