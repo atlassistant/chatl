@@ -4,7 +4,7 @@ chatl: javascript flavor
 ## Installation
 
 ```console
-$ npm install chatl --save
+$ npm install -g chatl
 ```
 
 ## Usage
@@ -12,7 +12,14 @@ $ npm install chatl --save
 ### CLI
 
 ```console
-$ chatl <dsl_training_filepath> [options_filepath] -a <adapter>
+Usage: chatl [options] <files...>
+
+  Options:
+
+    -V, --version           output the version number
+    -a, --adapter <name>    Name of the adapter to use
+    -m --merge <mergeFile>  Options file to merge with the final result
+    -h, --help              output usage information
 ```
 
 ### Library
@@ -22,7 +29,7 @@ You can use it with `node` or directly in client libraries with `webpack`.
 ```javascript
 import chatl from 'chatl';
 
-// Parsing the given dsl
+// Parsing the given dsl to a chatl representation
 
 const result = chatl.parse(`
 %[get_forecast]
@@ -41,66 +48,13 @@ const result = chatl.parse(`
   ~[new york]
   paris`);
 
-// Convert it using the snips adapter!
+// And convert it to the snips equivalent using the adapter
 chatl.adapters.snips(result);
-
-// Will returns this object
-
-/*{
-  "language": "en",
-  "entities": {
-    "snips/datetime": {},
-    "city": {
-      "use_synonyms": true,
-      "automatically_extensible": true,
-      "data": [
-        {
-          "value": "new york",
-          "synonyms": [
-            "ny",
-            "nyc"
-          ]
-        },
-        {
-          "value": "paris",
-          "synonyms": []
-        }
-      ]
-    }
-  },
-  "intents": {
-    "get_forecast": {
-      "utterances": [
-        {
-          "data": [
-            {
-              "text": "will it rain in "
-            },
-            {
-              "text": "new york",
-              "slot_name": "city",
-              "entity": "city"
-            },
-            {
-              "text": " "
-            },
-            {
-              "text": "at the end of the day",
-              "slot_name": "dateStart",
-              "entity": "snips/datetime"
-            }
-          ]
-        }
-      ]
-    }
-  }
-}*/
-
 ```
 
 ## Testing
 
 ```console
 $ npm i
-$ npm test
+$ npm test # or `npm run wintest` on windows
 ```

@@ -10,7 +10,17 @@
         </tab>
       </tabs>
 
-      <editor language="json" ref="result" readonly />
+      <tabs ref="tabs" @tab-changed="generate">
+        <tab title="chatl parsed" active style="height: 100%">
+          <editor language="json" ref="raw" readonly />
+        </tab>
+        <tab title="snips" style="height: 100%">
+          <editor language="json" ref="snips" readonly />
+        </tab>
+        <tab title="rasa" style="height: 100%">
+          <editor language="json" ref="rasa" readonly />
+        </tab>
+      </tabs>
     </div>
 
     <div class="console__status" :class="{ 'console__status--error': compileNotice !== 'All right 👌' }">
@@ -72,9 +82,18 @@ export default {
 
       try {
         const data = chatl.parse(this.dsl);
-        const result = chatl.adapters.snips(data, JSON.parse(this.options));
 
-        this.$refs.result.editor.setValue(chatl.toJSON(result));
+        switch (this.$refs.tabs.current.title) {
+          case 'snips':
+            this.$refs.snips.editor.setValue(chatl.utils.toJSON(chatl.adapters.snips(data, JSON.parse(this.options))));
+            break;
+          case 'rasa':
+            this.$refs.rasa.editor.setValue(chatl.utils.toJSON(chatl.adapters.rasa(data, JSON.parse(this.options))));
+            break;
+          default:
+            this.$refs.raw.editor.setValue(chatl.utils.toJSON(data));
+            break;
+        }
 
         this.compileNotice = 'All right 👌';
       } catch (e) {

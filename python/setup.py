@@ -18,7 +18,9 @@ setup(
   packages=find_packages(),
   include_package_data=True,
   classifiers=[
-    "Programming Language :: Python :: 3",
+    'Programming Language :: Python :: 3',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
   ],
   install_requires=[
     'Arpeggio==1.9.0',

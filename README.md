@@ -1,77 +1,67 @@
 chatl [![Build Status](https://travis-ci.org/atlassistant/chatl.svg?branch=master)](https://travis-ci.org/atlassistant/chatl) [![codecov](https://codecov.io/gh/atlassistant/chatl/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassistant/chatl) [![npm version](https://badge.fury.io/js/chatl.svg)](https://badge.fury.io/js/chatl) [![pypi version](https://badge.fury.io/py/pychatl.svg)](https://badge.fury.io/py/pychatl) ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ===
 
-Tiny DSL used to generates training dataset for NLU engines (currently `snips-nlu`). Heavily inspired by [chatito](https://github.com/rodrigopivi/Chatito).
+Tiny DSL used to generates training dataset for NLU engines (currently `snips-nlu` and `rasa nlu`). Heavily inspired by [chatito](https://github.com/rodrigopivi/Chatito).
 
 ## DSL specifications
 
 ```
-# chatl is really easy to understand.
-#
-# You can defines:
-#   - Intents
-#   - Entities (with or without variants)
-#   - Synonyms
-#   - Comments (only at the top level)
+# The chatl syntax is easy to understand.
+# With the `%` symbol, you define intents. Intent data can contains entity references
+# with the `@` and optional (using `?` as a suffix) synonyms with `~`.
+# Synonyms here will be used to generate variations of the given sentence.
+%[get_weather]
+  ~[greet?] what's the weather like in @[city] @[date]
+  ~[greet] will it rain in @[city] at @[date#hour]
 
-# Inside an intent, you got training data.
-# Training data can refer to one or more entities and/or synonyms, they will be used
-# by generators to generate all possible permutations and training samples.
-
-%[my_intent]
-  ~[greet] some training data @[date]
-  another training data that uses an @[entity] at @[date#with_variant]
-
+# With the `~`, you define synonyms used in intents and entities definitions.
 ~[greet]
   hi
-  hello
+  hey
 
-# Entities contains available samples and could refer to a synonym.
+~[new york]
+  ny
+  nyc
+  the big apple
 
-@[entity]
-  some value
-  other value
-  ~[a synonym]
+# With the `@`, you define entities.
+@[city]
+  paris
+  rouen
+  ~[new york]
 
-# Synonyms contains only raw values
-
-~[a synonym]
-  possible synonym
-  another one
-
-# Entities and intents can define arbitrary properties that will be made available
-# to generators.
-# For snips, `type`, `extensible` and `strictness` are used for example.
-# If the type value could not be found in the entities declaration, it will assume its a builtin one
-# and on snips, it will prepend the 'snips/' automatically
-
-@[date](type=datetime)
+# You can define properties on intents, entities and synonyms.
+# Depending on the dataset you want to generate, some props may be used
+# by the adapter to convey specific meanings.
+@[date](type=datetime, another=`property backticked`)
   tomorrow
-  today
+  this weekend
+  this evening
 
-# Variants is used only to generate training sample with specific values that should
-# maps to the same entity name, here `date`. Props will be merged with the root entity.
-
-@[date#with_variant]
-  the end of the day
-  nine o clock
-  twenty past five
+# You can define entity variants with the `#` symbol. Variants will be merge with
+# the entity it references but is used to provide different values when
+# generating intent sentences.
+@[date#hour]
+  ten o'clock
+  noon
 
 ```
 
 ## Adapters
 
-For now, only the [snips adapter](https://github.com/snipsco/snips-nlu) has been done. Here is a list of adapters and their respective properties:
+For now, only the [snips adapter](https://github.com/snipsco/snips-nlu) and [rasa nlu](https://github.com/RasaHQ/rasa) has been done. Here is a list of adapters and their respective properties:
 
-|  adapter       | snips |
-|----------------|-------|
-|  type (1)      | ✔️     |
-| extensible (2) | ✔️     |
-| strictness (3) | ✔️     |
+|  adapter       | snips | rasa |
+|----------------|-------|------|
+| type (1)       | ✔️     | ✔️   |
+| extensible (2) | ✔️     | ❌   |
+| strictness (3) | ✔️     | ❌   |
+| regex (4)      | ️️❌️     | ✔️   |
 
-1. Specific type of the entity to use (such as datetime, temperature and so on), if the given entity name could not be found in the chatl declaration, it will assume its a builtin one (supported types are related to snips and [listed here](https://github.com/snipsco/snips-nlu-ontology#supported-builtin-entities) without the `snips/` prefix)
+1. Specific type of the entity to use (such as datetime, temperature and so on). For `snips`, if the given entity name could not be found in the chatl declaration, it will assume its a builtin one (supported types are [listed here](https://github.com/snipsco/snips-nlu-ontology#supported-builtin-entities) without the `snips/` prefix). For `rasa`, it will use the referenced type as the slot name.
 2. Are values outside of training samples allowed?
 3. Parser threshold
+4. Regex pattern used to help the NLU to extract stuff
 
 ## Installation
 

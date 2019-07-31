@@ -1,1 +1,0 @@
-from .snips import snips

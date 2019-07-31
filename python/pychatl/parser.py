@@ -4,17 +4,19 @@ from arpeggio.cleanpeg import ParserPEG, visit_parse_tree
 parser = ParserPEG("""
 root = (intent_definition / entity_definition / synonym_definition / comment / EOL)+
 
-EOL = r'\\n|\\r\\n'
+EOL = r'\\n|\\r'
 indent = r'[ \\t]*'
-sentence = r'[^@^~^%^#^\\n^\\r\\n]+'
+sentence = r'[^@^~^%^#^\\n^\\r]+'
+text = r'[^\\n^\\r]*'
 
-element_name = r'[^]]+'
+element_name = r'[^]^?]+'
 
 entity_alias = "@[" element_name "]"
 synonym_alias = "~[" element_name "]"
 
-prop_key = r'[^=^\n^\r\n]*'
-prop_value = r'[^,^)^\n^\r\n]*'
+prop_key = r'[^=^\\n^\\r]*'
+backticked_value = r'[^\\n^\\r^`]*'
+prop_value = "`" backticked_value "`" / r'[^,^)^\\n^\\r]*'
 prop = prop_key "=" prop_value indent r'[,]?' indent
 props = "(" prop+ ")"
 
@@ -22,7 +24,9 @@ entity_data = indent (synonym_alias / sentence) EOL?
 entity_definition = "@[" element_name "]" props? EOL
   entity_data*
 
-intent_data = indent (entity_alias / synonym_alias / sentence)+ EOL?
+optional = "?"
+intent_synonym = "~[" element_name optional? "]"
+intent_data = indent (entity_alias / intent_synonym / sentence)+ EOL?
 intent_definition = "%[" element_name "]" props? EOL
   intent_data*
 
@@ -30,24 +34,22 @@ synonym_data = indent sentence+ EOL?
 synonym_definition = "~[" element_name "]" props? EOL
   synonym_data*
 
-comment = "#" sentence? EOL?
+comment = "#" indent text? EOL?
 
 """, 'root', skipws=False)
 
-def parse(input_string, prefix=''):
+def parse(input_string):
   """Parses the given DSL string and returns parsed results.
 
   Args:
     input_string (str): DSL string
-    prefix (str): Optional prefix to add to every element name, useful to namespace things
 
   Returns:
     dict: Parsed content
 
   """
-
   tree = parser.parse(input_string)
-  visitor = ChatlVisitor(prefix)
+  visitor = ChatlVisitor()
 
   return visit_parse_tree(tree, visitor)
 
@@ -67,7 +69,6 @@ def extract_variant(definition):
     ('room', None)
 
   """
-
   value, *variant = definition.split('#')
 
   return (value, variant[0] if variant else None)
@@ -77,16 +78,27 @@ class ChatlVisitor (PTNodeVisitor):
   usable by adapters.
   """
 
-  def __init__(self, prefix=''):
+  def __init__(self):
     super().__init__(defaults=False)
-
-    self.prefix = prefix
 
   def visit_sentence(self, node, children):
     return { 'type': 'text', 'value': node.value }
 
+  def visit_text(self, node, children):
+    return node.value
+
   def visit_synonym_alias(self, node, children):
     return { 'type': 'synonym', 'value': children.element_name[0] }
+
+  def visit_optional(self, node, children):
+    return True
+
+  def visit_intent_synonym(self, node, children):
+    return {
+      'type': 'synonym',
+      'value': children.element_name[0],
+      'optional': any(children.optional),
+    }
 
   def visit_entity_alias(self, node, children):
     value, variant = extract_variant(children.element_name[0])
@@ -98,12 +110,15 @@ class ChatlVisitor (PTNodeVisitor):
     }
 
   def visit_element_name(self, node, children):
-    return self.prefix + node.value
+    return node.value
 
   def visit_prop_key(self, node, children):
     return node.value
 
   def visit_prop_value(self, node, children):
+    return children.backticked_value[0] if children.backticked_value else node.value
+
+  def visit_backticked_value(self, node, children):
     return node.value
 
   def visit_prop(self, node, children):
@@ -149,7 +164,7 @@ class ChatlVisitor (PTNodeVisitor):
   def visit_comment(self, node, children):
     return { 
       'type': 'comment',
-      'value': children.sentence[0]['value'] if children.sentence else '',
+      'value': children.text[0] if children.text else '',
     }
 
   def visit_root(self, node, children):

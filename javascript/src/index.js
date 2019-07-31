@@ -1,9 +1,10 @@
 const parse = require('./parser').parse;
 const adapters = require('./adapters');
-const toJSON = require('./utils').toJSON;
+const utils = require('./utils');
 
 module.exports = {
   adapters,
   parse,
-  toJSON,
+  utils,
+  merge: utils.merge,
 };
