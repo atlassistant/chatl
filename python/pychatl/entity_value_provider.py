@@ -1,65 +1,74 @@
+# pylint: disable=W0108,W0212
+
+"""Expose the EntityValueProvider class.
+"""
+
 from pychatl import fp
 
+
 class EntityValueProvider:
-  """Provides a simple way to retrieve entity (and variant) values by iterating
-  on the provided set.
-  """
-
-  def __init__(self, entity_data, synonyms=None):
-    """Constructs a nex EntityValueProvider from an entity definition.
-    If a synonyms lookup table is given, they will be retrieved as a normal
-    value when calling `next`.
-
-    Args:
-      entity_data (dict): Dictionary of entity informations
-      synonyms (dict): Optional synonyms lookup table
-
+    """Provides a simple way to retrieve entity (and variant) values by iterating
+    on the provided set.
     """
-    variants = entity_data.get('variants', {})
 
-    self.indices = fp.append(fp.map(fp.always(-1))(variants))({
-      '_': -1,
-    })
+    def __init__(self, entity_data, synonyms=None):
+        """Constructs a nex EntityValueProvider from an entity definition.
+        If a synonyms lookup table is given, they will be retrieved as a normal
+        value when calling `next`.
 
-    data = fp.append(fp.map(fp.map(fp.prop('value')))(variants))({
-      '_': fp.map(fp.prop('value'))(entity_data.get('data', [])),
-    })
-    
-    self._values = fp.flatten(data)
-    self.data = fp.map(lambda d: 
-      fp.reduce(lambda pp, cc: fp.append(cc, *(synonyms.get(cc, [])))(pp))(d)
-    )(data) if synonyms else data
+        Args:
+          entity_data (dict): Dictionary of entity informations
+          synonyms (dict): Optional synonyms lookup table
 
-  def __eq__(self, other):
-    if isinstance(other, self.__class__):
-      return self._values == other._values and self.data == other.data and self.indices == other.indices
-    return False
+        """
+        variants = entity_data.get('variants', {})
 
-  def next(self, variant=None):
-    """Retrieve the next entity value.
+        self.indices = fp.append(fp.map(fp.always(-1))(variants))({
+            '_': -1,
+        })
 
-    Args:
-      variant (str): Optional entity variant to retrieve
-    
-    Returns:
-      str: Value!
+        data = fp.append(fp.map(fp.map(fp.prop('value')))(variants))({
+            '_': fp.map(fp.prop('value'))(entity_data.get('data', [])),
+        })
 
-    """
-    key = variant or '_'
-    d = self.data[key]
+        self._values = fp.flatten(data)
+        self.data = fp.map(lambda d:
+                           fp.reduce(lambda pp, cc: fp.append(
+                               cc, *(synonyms.get(cc, [])))(pp))(d)
+                           )(data) if synonyms else data
 
-    if (self.indices[key] >= len(d) - 1):
-      self.indices[key] = -1
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self._values == other._values \
+                and self.data == other.data \
+                and self.indices == other.indices
+        return False
 
-    self.indices[key] += 1
+    def next(self, variant=None):
+        """Retrieve the next entity value.
 
-    return d[self.indices[key]]
+        Args:
+          variant (str): Optional entity variant to retrieve
 
-  def all(self):
-    """Retrieve all valid values for this entity without synonyms.
+        Returns:
+          str: Value!
 
-    Returns:
-      list of str: List of values
+        """
+        key = variant or '_'
+        data = self.data[key]
 
-    """
-    return self._values
+        if self.indices[key] >= (len(data) - 1):
+            self.indices[key] = -1
+
+        self.indices[key] += 1
+
+        return data[self.indices[key]]
+
+    def all(self):
+        """Retrieve all valid values for this entity without synonyms.
+
+        Returns:
+          list of str: List of values
+
+        """
+        return self._values
