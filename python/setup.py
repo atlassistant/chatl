@@ -1,5 +1,4 @@
-"""pip setup file for pychatl.
-"""
+# pylint: disable=C0111
 
 from setuptools import setup, find_packages
 

@@ -1,5 +1,4 @@
-"""augment module which exposes the Augment class.
-"""
+# pylint: disable=C0111
 
 from itertools import product
 from pychatl import fp

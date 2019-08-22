@@ -1,5 +1,4 @@
-"""Exposes the entry point for the pychatl command line utility.
-"""
+# pylint: disable=C0111,E1120
 
 import argparse
 import json
@@ -41,4 +40,4 @@ def main():  # pragma: no cover
     if args.adapter:
         data = getattr(adapters, args.adapter)(data, **options)
 
-    print(json.dumps(daPARSERdent=2 if args.pretty else None))
+    print(json.dumps(indent=2 if args.pretty else None))

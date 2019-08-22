@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from pychatl import fp, utils
 from pychatl.augment import Augment
 
@@ -9,10 +11,10 @@ def rasa(chatl, **options):
     augment = Augment(chatl, True)
 
     def get_real_entity(name):
-        type = augment.entities.get(name, {}).get('props', {}).get('type')
+        entity_type = augment.entities.get(name, {}).get('props', {}).get('type')
 
-        if type and type in augment.entities:
-            return type
+        if entity_type and entity_type in augment.entities:
+            return entity_type
 
         return name
 
@@ -41,24 +43,24 @@ def rasa(chatl, **options):
         def build_sentence(sentence):
             entities = []
 
-            def reduce_sentence(p, c):
-                if not utils.is_entity(c):
-                    return p + c.get('value')
+            def reduce_sentence(result, cur):
+                if not utils.is_entity(cur):
+                    return result + cur.get('value')
 
-                entity_name = get_real_entity(c.get('value'))
-                value = augment.get_entity(entity_name).next(c.get('variant'))
+                entity_name = get_real_entity(cur.get('value'))
+                value = augment.get_entity(entity_name).next(cur.get('variant'))
 
                 nonlocal entities
 
                 entities.append({
-                    'start': len(p),
-                    'end': len(p) + len(value),
+                    'start': len(result),
+                    'end': len(result) + len(value),
                     'entity': entity_name,
                     # Check if its a synonym here
                     'value': synonyms_lookup.get(value, value),
                 })
 
-                return p + value
+                return result + value
 
             return {
                 'intent': name,
@@ -69,16 +71,16 @@ def rasa(chatl, **options):
         return fp.append(*fp.map(build_sentence)(intent.get('data', [])))(acc)
 
     def build_entity_synonyms(acc, _, name):
-        def reduce_entity(p, c):
-            synonyms = augment.get_synonyms(c)
+        def reduce_entity(result, cur):
+            synonyms = augment.get_synonyms(cur)
 
             if not synonyms:
-                return p
+                return result
 
             return fp.append({
-                'value': c,
+                'value': cur,
                 'synonyms': synonyms,
-            })(p)
+            })(result)
 
         return fp.append(*fp.reduce(reduce_entity)(augment.get_entity(name).all()))(acc)
 

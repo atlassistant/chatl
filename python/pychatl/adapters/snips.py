@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from pychatl import fp, utils
 from pychatl.augment import Augment
 
@@ -5,29 +7,29 @@ SNIPS_PREFIX = 'snips/'
 
 
 def snips(chatl, **options):
-    """Transform a chatl dataset to a snips representation as per 
+    """Transform a chatl dataset to a snips representation as per
     https://snips-nlu.readthedocs.io/en/0.19.1/dataset.html
     """
     augment = Augment(chatl)
 
     def get_entity_type(entity):
-        type = entity.get('props', {}).get(
+        ent_type = entity.get('props', {}).get(
             'type') or entity.get('props', {}).get('snips:type')
 
         # If the type is not present in the dataset, let's consider it'a a built-in
         # one.
-        if type and not augment.entities.get(type):
-            return SNIPS_PREFIX + type if SNIPS_PREFIX not in type else type
+        if ent_type and not augment.entities.get(ent_type):
+            return SNIPS_PREFIX + ent_type if SNIPS_PREFIX not in ent_type else ent_type
 
-        return type
+        return ent_type
 
     def build_entity(acc, entity, name):
-        type = get_entity_type(entity)
+        ent_type = get_entity_type(entity)
 
-        if type:
-            if SNIPS_PREFIX in type:
+        if ent_type:
+            if SNIPS_PREFIX in ent_type:
                 return fp.append({
-                    type: {},
+                    ent_type: {},
                 })(acc)
 
             # It has a type present in the dataset, it should be considered as a slot
@@ -35,12 +37,12 @@ def snips(chatl, **options):
 
         use_synonyms = False
 
-        def build_entity_value(e):
+        def build_entity_value(ent_name):
             nonlocal use_synonyms
-            synonyms = augment.get_synonyms(e)
+            synonyms = augment.get_synonyms(ent_name)
             use_synonyms = use_synonyms or len(synonyms) > 0
             return {
-                'value': e,
+                'value': ent_name,
                 'synonyms': synonyms,
             }
 
@@ -63,13 +65,13 @@ def snips(chatl, **options):
 
         entity = augment.entities.get(part_value)
         # Retrieve the inner type of the entity if defined in the dataset
-        type = get_entity_type(entity) or part_value
+        ent_type = get_entity_type(entity) or part_value
         # And check if it references another defined entity because if it's true,
         # values will be fetched from here
-        referenced_entity = type if augment.entities.get(type) else part_value
+        referenced_entity = ent_type if augment.entities.get(ent_type) else part_value
 
         return {
-            'entity': type,
+            'entity': ent_type,
             'slot_name': part_value,
             'text': augment.get_entity(referenced_entity).next(part.get('variant')),
         }

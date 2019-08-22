@@ -1,4 +1,4 @@
-# pylint: disable=W0108,W0212
+# pylint: disable=W0108,W0212,C0111
 
 """Expose the EntityValueProvider class.
 """

@@ -4,7 +4,7 @@ python:
   - "3.6"
   - "3.7"
 install:
-  - pip install codecov nosexcover
+  - pip install pylint codecov nosexcover
   - cd python
   - pip install -e ."[test]"
   - cd ../javascript
@@ -13,6 +13,7 @@ install:
   - cd ..
 script:
   - cd python
+  - pylint setup.py pychatl
   - python -m nose --with-doctest --with-xcoverage --cover-package=pychatl
   - cd ../javascript
   - npm test
