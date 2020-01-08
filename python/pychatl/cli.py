@@ -40,4 +40,4 @@ def main():  # pragma: no cover
     if args.adapter:
         data = getattr(adapters, args.adapter)(data, **options)
 
-    print(json.dumps(indent=2 if args.pretty else None))
+    print(json.dumps(data, indent=2 if args.pretty else None))
