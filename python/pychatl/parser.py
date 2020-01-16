@@ -9,7 +9,7 @@ from arpeggio.cleanpeg import ParserPEG, visit_parse_tree
 PARSER = ParserPEG("""
 root = (intent_definition / entity_definition / synonym_definition / comment / EOL)+
 
-EOL = r'\\n|\\r'
+EOL = r'\\n|\\r\\n'
 indent = r'[ \\t]*'
 sentence = r'[^@^~^%^#^\\n^\\r]+'
 text = r'[^\\n^\\r]*'
