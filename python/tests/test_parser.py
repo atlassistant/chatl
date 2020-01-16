@@ -10,6 +10,29 @@ class TestParser:
     def test_it_should_correctly_parse_dsl(self):
         tests = [
             {
+                'it': 'should parse content with carriage return',
+                'dsl': """%[lights_on]\r\n  turn the lights on\r\n%[lights_off]\r\n  turn the lights off""",
+                'expected': {
+                    'intents': {
+                        'lights_on': {
+                            'props': {},
+                            'data': [
+                                [{'type': 'text', 'value': 'turn the lights on'}],
+                            ],
+                        },
+                        'lights_off': {
+                            'props': {},
+                            'data': [
+                                [{'type': 'text', 'value': 'turn the lights off'}],
+                            ],
+                        },
+                    },
+                    'entities': {},
+                    'synonyms': {},
+                    'comments': [],
+                },
+            },
+            {
                 'it': 'should parse simple intents with props',
                 'dsl': """
 %[get_forecast](some=prop, something=else)
