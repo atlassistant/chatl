@@ -15,7 +15,7 @@ setup(
     long_description=README,
     url='https://github.com/atlassistant/chatl',
     author='Julien LEICHER',
-    license='GPL-3.0',
+    license='MIT',
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
