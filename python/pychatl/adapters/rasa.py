@@ -30,13 +30,13 @@ def rasa(chatl, **options):
     def build_lookup_table(acc, _, name):
         entity_name = get_real_entity(name)
 
-        # Entity reference to another or has regex feature, returns now
-        if entity_name != name or get_regex_prop(name):
+        # Entity has regex feature, returns now
+        if get_regex_prop(entity_name):
             return acc
 
         return fp.append({
             'name': name,
-            'elements': augment.get_entity(name).all(),
+            'elements': augment.get_entity(entity_name).all(),
         })(acc)
 
     def build_intent_examples(acc, intent, name):
@@ -55,7 +55,7 @@ def rasa(chatl, **options):
                 entities.append({
                     'start': len(result),
                     'end': len(result) + len(value),
-                    'entity': entity_name,
+                    'entity': cur.get('value'),
                     # Check if its a synonym here
                     'value': synonyms_lookup.get(value, value),
                 })
@@ -85,7 +85,7 @@ def rasa(chatl, **options):
         return fp.append(*fp.reduce(reduce_entity)(augment.get_entity(name).all()))(acc)
 
     def build_regex_features(acc, _, name):
-        pattern = get_regex_prop(name)
+        pattern = get_regex_prop(get_real_entity(name))
 
         if pattern:
             return fp.append({
