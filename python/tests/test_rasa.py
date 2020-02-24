@@ -109,7 +109,7 @@ class TestRasa:
                                     {'start': 18, 'end': 25,
                                      'value': 'kitchen', 'entity': 'room'},
                                     {'start': 29, 'end': 36,
-                                     'value': 'bedroom', 'entity': 'room'},
+                                     'value': 'bedroom', 'entity': 'anotherRoom'},
                                 ],
                             },
                         ],
@@ -117,6 +117,10 @@ class TestRasa:
                         'lookup_tables': [
                             {
                                 'name': 'room',
+                                'elements': ['kitchen', 'bedroom'],
+                            },
+                            {
+                                'name': 'anotherRoom',
                                 'elements': ['kitchen', 'bedroom'],
                             },
                         ],
