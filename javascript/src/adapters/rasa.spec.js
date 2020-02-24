@@ -97,7 +97,7 @@ describe('the rasa adapter', function () {
               intent: 'my_intent',
               entities: [
                 { start: 18, end: 25, value: 'kitchen', entity: 'room' },
-                { start: 29, end: 36, value: 'bedroom', entity: 'room' },
+                { start: 29, end: 36, value: 'bedroom', entity: 'anotherRoom' },
               ],
             },
           ],
@@ -105,6 +105,10 @@ describe('the rasa adapter', function () {
           lookup_tables: [
             {
               name: 'room',
+              elements: ['kitchen', 'bedroom'],
+            },
+            {
+              name: 'anotherRoom',
               elements: ['kitchen', 'bedroom'],
             },
           ],

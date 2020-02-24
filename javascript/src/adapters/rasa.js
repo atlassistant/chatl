@@ -26,14 +26,14 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
   const buildLookupTable = (acc, _, name) => {
     const entityName = getRealEntity(name);
 
-    // Entity reference to another or has regex feature, returns now
-    if (entityName !== name || getRegexProp(name)) {
+    // Entity has regex feature, returns now
+    if (getRegexProp(entityName)) {
       return acc;
     }
 
     return fp.append({
       name,
-      elements: augment.getEntity(name).all(),
+      elements: augment.getEntity(entityName).all(),
     })(acc);
   };
 
@@ -54,7 +54,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
           entities.push({
             start: p.length,
             end: p.length + value.length,
-            entity: entityName,
+            entity: c.value,
             value: synonymsLookup[value] || value, // Check if its a synonym here
           });
 
@@ -81,7 +81,7 @@ module.exports = function generateTrainingDataset (chatl, options = {}) {
   };
 
   const buildRegexFeatures = (acc, _, name) => {
-    const pattern = getRegexProp(name);
+    const pattern = getRegexProp(getRealEntity(name));
 
     if (pattern) {
       return fp.append({
